@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Issue & Return - LibraryMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    checkRole(["admin", "librarian"]);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="body">
+      <!-- Sidebar -->
+      <aside class="side" id="sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="main" style="padding: 0;">
+        <header class="topbar" id="topbar"></header>
+
+        <div style="padding: 24px;">
+          <!-- Page Header -->
+          <div class="head" id="pageHeader">
+            <div>
+              <h2>Book Issue & Return</h2>
+              <p>Issue books to members and process returns</p>
+            </div>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <div class="tabs">
+            <button class="tab active" id="tabIssueBtn" onclick="switchTab('issue')">Issue Book</button>
+            <button class="tab" id="tabReturnBtn" onclick="switchTab('return')">Return Book</button>
+          </div>
+
+          <!-- Tab 1: Issue Book -->
+          <div id="tabIssueContent">
+            <div class="row">
+              <!-- Issue Form -->
+              <div class="box">
+                <div class="box-head">
+                  <h3>Issue Book to Member</h3>
+                </div>
+                <form class="form" onsubmit="handleIssueSubmit(event)">
+                  <div class="form-group">
+                    <label for="issueMemberSelect">Select Member</label>
+                    <select id="issueMemberSelect" required>
+                      <option value="">-- Choose Member --</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="issueBookSelect">Select Book</label>
+                    <select id="issueBookSelect" required onchange="updateSelectedBookPreview()">
+                      <option value="">-- Choose Book --</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="issueDateInput">Issue Date</label>
+                      <input type="date" id="issueDateInput" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="dueDateInput">Due Date (14 Days)</label>
+                      <input type="date" id="dueDateInput" required>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 10px;">
+                    <button type="submit" class="btn" style="width: 100%;">Issue Book</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Book Details Preview Panel -->
+              <div class="box" id="bookDetailsBox">
+                <div class="box-head">
+                  <h3>Book Details</h3>
+                  <span class="tag green" id="issueAvailBadge">Available</span>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
+                  <div id="issueCover" style="width: 80px; height: 110px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a, #3b5bfd); display: grid; place-items: center; text-align: center; font-size: 11px; font-weight: bold; color: #fff; padding: 6px;">
+                    Book Cover
+                  </div>
+                  <div style="flex: 1;">
+                    <h4 id="issueBookTitle" style="color: #fff; font-size: 16px; margin-bottom: 4px;">Select a Book</h4>
+                    <p id="issueBookAuthor" style="color: var(--text-sub); font-size: 13px; margin-bottom: 6px;">Author name</p>
+                    <span class="tag blue" id="issueBookCat">Category</span>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #0d1733; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+                  <div>
+                    <div style="font-size: 11.5px; color: var(--text-sub);">Available Copies</div>
+                    <div id="issueAvailCount" style="font-size: 18px; font-weight: 700; color: #fff;">-</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11.5px; color: var(--text-sub);">Total Copies</div>
+                    <div id="issueTotalCount" style="font-size: 18px; font-weight: 700; color: #fff;">-</div>
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <div style="font-size: 11.5px; color: var(--text-sub);">ISBN Number</div>
+                    <div id="issueIsbnText" style="font-size: 13px; color: #fff;">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Return Book -->
+          <div id="tabReturnContent" style="display: none;">
+            <div class="row">
+              <!-- Return Form -->
+              <div class="box">
+                <div class="box-head">
+                  <h3>Process Book Return</h3>
+                </div>
+                <form class="form" onsubmit="handleReturnSubmit(event)">
+                  <div class="form-group">
+                    <label for="returnIssueSelect">Select Active Borrow Record</label>
+                    <select id="returnIssueSelect" required onchange="updateReturnPreview()">
+                      <option value="">-- Choose Active Loan --</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Due Date</label>
+                      <input type="text" id="returnDueDate" readonly style="background: #152248;">
+                    </div>
+                    <div class="form-group">
+                      <label>Return Date</label>
+                      <input type="text" id="returnTodayDate" readonly style="background: #152248;">
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 10px;">
+                    <button type="submit" class="btn" style="width: 100%;">Return Book & Calculate Fine</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Overdue Fine Calculation Panel -->
+              <div class="box">
+                <div class="box-head">
+                  <h3>Fine & Status Details</h3>
+                  <span class="tag green" id="returnStatusTag">On Time</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 14px; background: #0d1733; padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-sub);">Borrower:</span>
+                    <strong id="returnMemberName" style="color: #fff;">-</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-sub);">Book Title:</span>
+                    <strong id="returnBookTitle" style="color: #fff;">-</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-sub);">Days Overdue:</span>
+                    <strong id="returnDaysOverdue" style="color: #fff;">0 days</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
+                    <span style="color: var(--text-sub); font-size: 14px;">Total Fine (Rs. 5 / day):</span>
+                    <strong id="returnFineAmount" style="color: var(--green); font-size: 18px;">Rs. 0.00</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions Table -->
+          <div class="box">
+            <div class="box-head">
+              <h3>Recent Transactions</h3>
+              <a href="history.html" style="font-size: 12.5px;">View Full History →</a>
+            </div>
+            <div class="scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Book Title</th>
+                    <th>Member</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="circTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    renderSidebar("issue");
+    renderTopbar("Book Issue & Return", "Issue books to members and process returns");
+
+    function switchTab(tab) {
+      if (tab === "issue") {
+        document.getElementById("tabIssueBtn").classList.add("active");
+        document.getElementById("tabReturnBtn").classList.remove("active");
+        document.getElementById("tabIssueContent").style.display = "block";
+        document.getElementById("tabReturnContent").style.display = "none";
+      } else {
+        document.getElementById("tabReturnBtn").classList.add("active");
+        document.getElementById("tabIssueBtn").classList.remove("active");
+        document.getElementById("tabReturnContent").style.display = "block";
+        document.getElementById("tabIssueContent").style.display = "none";
+        populateReturnSelect();
+      }
+    }
+
+    function initIssueForm() {
+      // Set dates
+      var today = getToday();
+      document.getElementById("issueDateInput").value = today;
+      document.getElementById("dueDateInput").value = addDays(today, 14);
+
+      // Populate Members
+      var allMembers = getData("members");
+      var memSelect = document.getElementById("issueMemberSelect");
+      memSelect.innerHTML = '<option value="">-- Choose Member --</option>';
+      for (var i = 0; i < allMembers.length; i++) {
+        var m = allMembers[i];
+        memSelect.innerHTML += '<option value="' + m.id + '">' + m.name + ' (' + (m.code || 'M' + m.id) + ')</option>';
+      }
+
+      // Populate Books
+      var allBooks = getData("books");
+      var bookSelect = document.getElementById("issueBookSelect");
+      bookSelect.innerHTML = '<option value="">-- Choose Book --</option>';
+      for (var j = 0; j < allBooks.length; j++) {
+        var b = allBooks[j];
+        bookSelect.innerHTML += '<option value="' + b.id + '">' + b.title + ' (Available: ' + b.available + ')</option>';
+      }
+
+      if (allBooks.length > 0) {
+        bookSelect.value = allBooks[0].id;
+        updateSelectedBookPreview();
+      }
+
+      renderCircTable();
+    }
+
+    function updateSelectedBookPreview() {
+      var bookId = document.getElementById("issueBookSelect").value;
+      var allBooks = getData("books");
+      for (var i = 0; i < allBooks.length; i++) {
+        if (allBooks[i].id == bookId) {
+          var b = allBooks[i];
+          document.getElementById("issueBookTitle").textContent = b.title;
+          document.getElementById("issueBookAuthor").textContent = "by " + b.author;
+          document.getElementById("issueBookCat").textContent = b.category;
+          document.getElementById("issueAvailCount").textContent = b.available;
+          document.getElementById("issueTotalCount").textContent = b.total;
+          document.getElementById("issueIsbnText").textContent = b.isbn;
+
+          var coverEl = document.getElementById("issueCover");
+          coverEl.style.background = b.gradient || "linear-gradient(135deg, #1e3a8a, #3b5bfd)";
+          coverEl.textContent = b.title;
+
+          var badgeEl = document.getElementById("issueAvailBadge");
+          if (b.available > 0) {
+            badgeEl.className = "tag green";
+            badgeEl.textContent = "Available";
+          } else {
+            badgeEl.className = "tag red";
+            badgeEl.textContent = "Out of Stock";
+          }
+          return;
+        }
+      }
+    }
+
+    function handleIssueSubmit(e) {
+      e.preventDefault();
+      var memberId = document.getElementById("issueMemberSelect").value;
+      var bookId = document.getElementById("issueBookSelect").value;
+
+      if (!memberId || !bookId) {
+        alert("Please select both a member and a book.");
+        return;
+      }
+
+      var res = issueBook(bookId, memberId, 14);
+      if (res.ok) {
+        alert("Book successfully issued! Due date: " + res.issue.dueDate);
+        initIssueForm();
+      } else {
+        alert(res.msg);
+      }
+    }
+
+    function populateReturnSelect() {
+      var allIssues = getData("issues");
+      var retSelect = document.getElementById("returnIssueSelect");
+      retSelect.innerHTML = '<option value="">-- Choose Active Loan --</option>';
+
+      var activeFound = false;
+      for (var i = 0; i < allIssues.length; i++) {
+        var it = allIssues[i];
+        if (it.status === "Issued" || it.status === "Overdue") {
+          activeFound = true;
+          retSelect.innerHTML += '<option value="' + it.id + '">' + it.bookTitle + ' - ' + it.memberName + ' (Due: ' + it.dueDate + ')</option>';
+        }
+      }
+
+      document.getElementById("returnTodayDate").value = getToday();
+
+      if (activeFound) {
+        retSelect.selectedIndex = 1;
+        updateReturnPreview();
+      } else {
+        document.getElementById("returnMemberName").textContent = "-";
+        document.getElementById("returnBookTitle").textContent = "-";
+        document.getElementById("returnDueDate").value = "-";
+        document.getElementById("returnDaysOverdue").textContent = "0 days";
+        document.getElementById("returnFineAmount").textContent = "Rs. 0.00";
+      }
+    }
+
+    function updateReturnPreview() {
+      var issueId = document.getElementById("returnIssueSelect").value;
+      var allIssues = getData("issues");
+      for (var i = 0; i < allIssues.length; i++) {
+        if (allIssues[i].id == issueId) {
+          var it = allIssues[i];
+          document.getElementById("returnMemberName").textContent = it.memberName;
+          document.getElementById("returnBookTitle").textContent = it.bookTitle;
+          document.getElementById("returnDueDate").value = it.dueDate;
+
+          var today = getToday();
+          var fine = calcFine(it.dueDate, today);
+
+          var dueD = new Date(it.dueDate);
+          var todayD = new Date(today);
+          var diff = Math.ceil((todayD.getTime() - dueD.getTime()) / (1000 * 60 * 60 * 24));
+          var daysLate = diff > 0 ? diff : 0;
+
+          document.getElementById("returnDaysOverdue").textContent = daysLate + " days";
+          document.getElementById("returnFineAmount").textContent = "Rs. " + fine.toFixed(2);
+
+          var tag = document.getElementById("returnStatusTag");
+          if (fine > 0) {
+            tag.className = "tag red";
+            tag.textContent = "Overdue";
+            document.getElementById("returnFineAmount").style.color = "var(--red)";
+          } else {
+            tag.className = "tag green";
+            tag.textContent = "On Time";
+            document.getElementById("returnFineAmount").style.color = "var(--green)";
+          }
+          return;
+        }
+      }
+    }
+
+    function handleReturnSubmit(e) {
+      e.preventDefault();
+      var issueId = document.getElementById("returnIssueSelect").value;
+      if (!issueId) {
+        alert("Please select a loan to return.");
+        return;
+      }
+
+      var res = returnBook(issueId);
+      if (res.ok) {
+        var msg = "Book returned successfully!";
+        if (res.fine > 0) {
+          msg += "\nLate return fine: Rs. " + res.fine.toFixed(2);
+        } else {
+          msg += "\nReturned on time. No fine.";
+        }
+        alert(msg);
+        populateReturnSelect();
+        initIssueForm();
+      } else {
+        alert(res.msg);
+      }
+    }
+
+    function renderCircTable() {
+      var allIssues = getData("issues");
+      var tbody = document.getElementById("circTableBody");
+      var html = "";
+
+      for (var i = 0; i < Math.min(allIssues.length, 6); i++) {
+        var it = allIssues[i];
+        var tagColor = "blue";
+        if (it.status === "Returned") tagColor = "green";
+        else if (it.status === "Overdue") tagColor = "red";
+
+        html +=
+          '<tr>' +
+            '<td><strong>' + it.bookTitle + '</strong></td>' +
+            '<td>' + it.memberName + '</td>' +
+            '<td>' + it.issueDate + '</td>' +
+            '<td>' + it.dueDate + '</td>' +
+            '<td>' + (it.returnDate || "-") + '</td>' +
+            '<td><span class="tag ' + tagColor + '">' + it.status + '</span></td>' +
+          '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    initIssueForm();
+  </script>
+</body>
+</html>

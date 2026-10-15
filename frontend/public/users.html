@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management - LibraryMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    checkRole(["admin"]);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="body">
+      <!-- Sidebar -->
+      <aside class="side" id="sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="main" style="padding: 0;">
+        <header class="topbar" id="topbar"></header>
+
+        <div style="padding: 24px;">
+          <!-- Page Header -->
+          <div class="head" id="pageHeader">
+            <div>
+              <h2>User Management</h2>
+              <p>Manage system users, login credentials, and roles</p>
+            </div>
+            <div>
+              <button class="btn" onclick="openUserModal()">+ Add New User</button>
+            </div>
+          </div>
+
+          <!-- Role Filter Tabs -->
+          <div class="tabs">
+            <button class="tab active" onclick="setRoleTab('all', this)">All Users</button>
+            <button class="tab" onclick="setRoleTab('admin', this)">Admins</button>
+            <button class="tab" onclick="setRoleTab('librarian', this)">Librarians</button>
+            <button class="tab" onclick="setRoleTab('student', this)">Students</button>
+          </div>
+
+          <!-- Users Table Box -->
+          <div class="box">
+            <div class="box-head">
+              <h3>System User Accounts</h3>
+              <div style="min-width: 220px;">
+                <input type="text" id="userSearch" placeholder="Search user by name or email..." oninput="renderUsersTable()" style="width: 100%; padding: 6px 12px; background: #0d1733; border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
+              </div>
+            </div>
+            <div class="scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit User Modal -->
+  <div class="modal" id="userModal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="modalUserTitle" style="color: #fff; font-size: 18px;">Add New User</h3>
+        <button class="btn sm outline" onclick="closeUserModal()" style="padding: 2px 8px;">✕</button>
+      </div>
+      <form class="form" onsubmit="handleUserSubmit(event)">
+        <input type="hidden" id="userId">
+        <div class="form-group">
+          <label for="userNameInput">Full Name</label>
+          <input type="text" id="userNameInput" required placeholder="User full name">
+        </div>
+        <div class="form-group">
+          <label for="userEmailInput">Email Address</label>
+          <input type="email" id="userEmailInput" required placeholder="name@lib.com">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userPassInput">Password</label>
+            <input type="text" id="userPassInput" required placeholder="Password">
+          </div>
+          <div class="form-group">
+            <label for="userRoleSelect">Role</label>
+            <select id="userRoleSelect">
+              <option value="student">Student</option>
+              <option value="librarian">Librarian</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="userPhoneInput">Phone (Optional)</label>
+          <input type="tel" id="userPhoneInput" placeholder="9876543210">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+          <button type="button" class="btn outline" onclick="closeUserModal()">Cancel</button>
+          <button type="submit" class="btn">Save User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    renderSidebar("users");
+    renderTopbar("User Management", "Manage system users, login credentials, and roles");
+
+    var activeRole = "all";
+    var currentUser = getUser();
+
+    function setRoleTab(role, el) {
+      activeRole = role;
+      var tabs = document.querySelectorAll(".tab");
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+      }
+      if (el) el.classList.add("active");
+      renderUsersTable();
+    }
+
+    function renderUsersTable() {
+      var allUsers = getData("users");
+      var q = document.getElementById("userSearch").value.toLowerCase().trim();
+
+      var filtered = [];
+      for (var i = 0; i < allUsers.length; i++) {
+        var u = allUsers[i];
+        var matchRole = (activeRole === "all" || u.role === activeRole);
+        var matchQuery = (!q ||
+          u.name.toLowerCase().indexOf(q) !== -1 ||
+          u.email.toLowerCase().indexOf(q) !== -1
+        );
+
+        if (matchRole && matchQuery) {
+          filtered.push(u);
+        }
+      }
+
+      var tbody = document.getElementById("usersTableBody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-sub); padding: 24px;">No users found in this category.</td></tr>';
+        return;
+      }
+
+      var html = "";
+      for (var j = 0; j < filtered.length; j++) {
+        var user = filtered[j];
+        var roleTagColor = "blue";
+        if (user.role === "admin") roleTagColor = "red";
+        else if (user.role === "librarian") roleTagColor = "orange";
+
+        var isSelf = (currentUser && currentUser.email === user.email);
+        var deleteBtn = isSelf
+          ? '<button class="btn sm outline" disabled style="opacity: 0.5;">Current</button>'
+          : '<button class="btn sm danger" onclick="deleteUser(' + user.id + ')">Delete</button>';
+
+        html +=
+          '<tr>' +
+            '<td><strong>' + user.name + '</strong></td>' +
+            '<td>' + user.email + '</td>' +
+            '<td><span class="tag ' + roleTagColor + '">' + user.role + '</span></td>' +
+            '<td>' + (user.phone || "-") + '</td>' +
+            '<td><span class="tag green">Active</span></td>' +
+            '<td>' +
+              '<div style="display: flex; gap: 6px;">' +
+                '<button class="btn sm outline" onclick="editUser(' + user.id + ')">Edit</button>' +
+                deleteBtn +
+              '</div>' +
+            '</td>' +
+          '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    function openUserModal() {
+      document.getElementById("modalUserTitle").textContent = "Add New User";
+      document.getElementById("userId").value = "";
+      document.getElementById("userNameInput").value = "";
+      document.getElementById("userEmailInput").value = "";
+      document.getElementById("userPassInput").value = "";
+      document.getElementById("userRoleSelect").value = "student";
+      document.getElementById("userPhoneInput").value = "";
+      document.getElementById("userModal").classList.add("open");
+    }
+
+    function closeUserModal() {
+      document.getElementById("userModal").classList.remove("open");
+    }
+
+    function editUser(id) {
+      var allUsers = getData("users");
+      for (var i = 0; i < allUsers.length; i++) {
+        if (allUsers[i].id == id) {
+          var u = allUsers[i];
+          document.getElementById("modalUserTitle").textContent = "Edit User";
+          document.getElementById("userId").value = u.id;
+          document.getElementById("userNameInput").value = u.name;
+          document.getElementById("userEmailInput").value = u.email;
+          document.getElementById("userPassInput").value = u.password;
+          document.getElementById("userRoleSelect").value = u.role;
+          document.getElementById("userPhoneInput").value = u.phone || "";
+          document.getElementById("userModal").classList.add("open");
+          return;
+        }
+      }
+    }
+
+    function handleUserSubmit(e) {
+      e.preventDefault();
+      var id = document.getElementById("userId").value;
+      var name = document.getElementById("userNameInput").value.trim();
+      var email = document.getElementById("userEmailInput").value.trim().toLowerCase();
+      var pass = document.getElementById("userPassInput").value.trim();
+      var role = document.getElementById("userRoleSelect").value;
+      var phone = document.getElementById("userPhoneInput").value.trim();
+
+      var allUsers = getData("users");
+
+      if (id) {
+        // Edit existing
+        for (var i = 0; i < allUsers.length; i++) {
+          if (allUsers[i].id == id) {
+            allUsers[i].name = name;
+            allUsers[i].email = email;
+            allUsers[i].password = pass;
+            allUsers[i].role = role;
+            allUsers[i].phone = phone;
+            break;
+          }
+        }
+      } else {
+        // Add new
+        var newUser = {
+          id: Date.now(),
+          name: name,
+          email: email,
+          password: pass,
+          role: role,
+          phone: phone
+        };
+        allUsers.push(newUser);
+      }
+
+      saveData("users", allUsers);
+      closeUserModal();
+      renderUsersTable();
+    }
+
+    function deleteUser(id) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      var allUsers = getData("users");
+      var filtered = [];
+      for (var i = 0; i < allUsers.length; i++) {
+        if (allUsers[i].id != id) {
+          filtered.push(allUsers[i]);
+        }
+      }
+      saveData("users", filtered);
+      renderUsersTable();
+    }
+
+    renderUsersTable();
+  </script>
+</body>
+</html>

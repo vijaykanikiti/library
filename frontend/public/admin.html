@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - LibraryMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    checkRole(["admin"]);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="body">
+      <!-- Left Sidebar -->
+      <aside class="side" id="sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="main" style="padding: 0;">
+        <!-- Top Bar -->
+        <header class="topbar" id="topbar"></header>
+
+        <div style="padding: 24px;">
+          <!-- Page Header -->
+          <div class="head" id="pageHeader"></div>
+
+          <!-- 4 Stat Cards -->
+          <div class="grid">
+            <div class="card blue">
+              <h3>Total Books</h3>
+              <div class="num" id="statBooks">1,245</div>
+              <div class="card-icon">📚</div>
+            </div>
+            <div class="card green">
+              <h3>Total Members</h3>
+              <div class="num" id="statMembers">368</div>
+              <div class="card-icon">👥</div>
+            </div>
+            <div class="card orange">
+              <h3>Issued Books</h3>
+              <div class="num" id="statIssued">142</div>
+              <div class="card-icon">🔄</div>
+            </div>
+            <div class="card red">
+              <h3>Overdue Books</h3>
+              <div class="num" id="statOverdue">18</div>
+              <div class="card-icon">⚠️</div>
+            </div>
+          </div>
+
+          <!-- 2 Columns: Activities & Statistics Bar Chart -->
+          <div class="row">
+            <!-- Recent Activities -->
+            <div class="box">
+              <div class="box-head">
+                <h3>Recent Activities</h3>
+                <a href="history.html" style="font-size: 12.5px;">View History →</a>
+              </div>
+              <ul class="list" id="activitiesList"></ul>
+            </div>
+
+            <!-- Book Statistics Bar Chart (CSS/SVG) -->
+            <div class="box">
+              <div class="box-head">
+                <h3>Book Statistics</h3>
+                <span class="tag blue">This Month</span>
+              </div>
+              <div class="chart">
+                <div class="chart-bar-wrap">
+                  <div class="chart-val" id="chartIssuedVal">142</div>
+                  <div class="chart-bar" id="chartIssuedBar" style="height: 75%; background: var(--blue);"></div>
+                  <div class="chart-lbl">Issued</div>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-val" id="chartReturnedVal">98</div>
+                  <div class="chart-bar" id="chartReturnedBar" style="height: 55%; background: var(--green);"></div>
+                  <div class="chart-lbl">Returned</div>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-val" id="chartReservedVal">34</div>
+                  <div class="chart-bar" id="chartReservedBar" style="height: 25%; background: var(--orange);"></div>
+                  <div class="chart-lbl">Reserved</div>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-val" id="chartOverdueVal">18</div>
+                  <div class="chart-bar" id="chartOverdueBar" style="height: 18%; background: var(--red);"></div>
+                  <div class="chart-lbl">Overdue</div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); padding-top: 6px;">
+                <span>Total Transactions: <strong style="color:#fff;" id="totalTrans">292</strong></span>
+                <span>Active Circulation Rate: <strong style="color:var(--green);">84%</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Issues Table -->
+          <div class="box">
+            <div class="box-head">
+              <h3>Recent Book Circulation</h3>
+              <a href="issue.html" style="font-size: 12.5px;">Manage Circulation →</a>
+            </div>
+            <div class="scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Book</th>
+                    <th>Member</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentCircBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    renderSidebar("dashboard");
+    renderTopbar("Admin Dashboard", "Library overview and statistics");
+
+    function loadAdminDashboard() {
+      var allBooks = getData("books");
+      var allMembers = getData("members");
+      var allIssues = getData("issues");
+      var allRes = getData("reservations");
+      var allActs = getData("activities");
+
+      // Calculate totals
+      var totalBooksCount = 1245;
+      for (var i = 0; i < allBooks.length; i++) {
+        totalBooksCount += (allBooks[i].total || 1);
+      }
+      var totalMembersCount = 368 + allMembers.length;
+
+      var issuedCount = 0;
+      var overdueCount = 0;
+      var returnedCount = 0;
+
+      for (var j = 0; j < allIssues.length; j++) {
+        var it = allIssues[j];
+        if (it.status === "Issued") issuedCount++;
+        else if (it.status === "Overdue") overdueCount++;
+        else if (it.status === "Returned") returnedCount++;
+      }
+
+      document.getElementById("statBooks").textContent = totalBooksCount.toLocaleString();
+      document.getElementById("statMembers").textContent = totalMembersCount.toLocaleString();
+      document.getElementById("statIssued").textContent = (142 + issuedCount).toString();
+      document.getElementById("statOverdue").textContent = (18 + overdueCount).toString();
+
+      // Chart values
+      document.getElementById("chartIssuedVal").textContent = (142 + issuedCount);
+      document.getElementById("chartReturnedVal").textContent = (98 + returnedCount);
+      document.getElementById("chartReservedVal").textContent = (34 + allRes.length);
+      document.getElementById("chartOverdueVal").textContent = (18 + overdueCount);
+      document.getElementById("totalTrans").textContent = (292 + allIssues.length);
+
+      // Render activities list
+      var actHtml = "";
+      for (var k = 0; k < Math.min(allActs.length, 5); k++) {
+        actHtml +=
+          '<li>' +
+            '<div class="list-info">' +
+              '<div class="list-icon">⚡</div>' +
+              '<span>' + allActs[k].text + '</span>' +
+            '</div>' +
+            '<span class="list-time">' + allActs[k].time + '</span>' +
+          '</li>';
+      }
+      document.getElementById("activitiesList").innerHTML = actHtml;
+
+      // Render recent circulation table
+      var circHtml = "";
+      for (var m = 0; m < Math.min(allIssues.length, 5); m++) {
+        var row = allIssues[m];
+        var tagColor = "blue";
+        if (row.status === "Returned") tagColor = "green";
+        else if (row.status === "Overdue") tagColor = "red";
+
+        circHtml +=
+          '<tr>' +
+            '<td><strong>' + row.bookTitle + '</strong></td>' +
+            '<td>' + row.memberName + '</td>' +
+            '<td>' + row.issueDate + '</td>' +
+            '<td>' + row.dueDate + '</td>' +
+            '<td><span class="tag ' + tagColor + '">' + row.status + '</span></td>' +
+          '</tr>';
+      }
+      document.getElementById("recentCircBody").innerHTML = circHtml;
+    }
+
+    loadAdminDashboard();
+  </script>
+</body>
+</html>

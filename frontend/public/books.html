@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Catalog - LibraryMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    checkRole(["admin", "librarian", "student"]);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="body">
+      <!-- Sidebar -->
+      <aside class="side" id="sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="main" style="padding: 0;">
+        <header class="topbar" id="topbar"></header>
+
+        <div style="padding: 24px;">
+          <!-- Page Header -->
+          <div class="head" id="pageHeader">
+            <div>
+              <h2>Book Catalog</h2>
+              <p>Browse, search and manage library collection</p>
+            </div>
+            <div>
+              <button class="btn" id="addBookBtn" style="display: none;" onclick="openBookModal()">+ Add Book</button>
+            </div>
+          </div>
+
+          <!-- Category Chips -->
+          <div class="chips" id="categoryChips">
+            <button class="chip active" onclick="setCategory('All', this)">All</button>
+            <button class="chip" onclick="setCategory('Computer Science', this)">Computer Science</button>
+            <button class="chip" onclick="setCategory('Technology', this)">Technology</button>
+            <button class="chip" onclick="setCategory('Science', this)">Science</button>
+            <button class="chip" onclick="setCategory('Fiction', this)">Fiction</button>
+            <button class="chip" onclick="setCategory('Others', this)">Others</button>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="box" style="padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+              <div style="flex: 1; min-width: 220px;">
+                <input type="text" id="searchInput" placeholder="Search by title, author, or ISBN..." oninput="renderBooks()" style="width: 100%; padding: 9px 12px; background: #0d1733; border: 1px solid var(--border); border-radius: 8px; color: #fff; outline: none;">
+              </div>
+              <div style="min-width: 160px;">
+                <select id="availFilter" onchange="renderBooks()" style="width: 100%; padding: 9px 12px; background: #0d1733; border: 1px solid var(--border); border-radius: 8px; color: #fff; outline: none;">
+                  <option value="">All Availability</option>
+                  <option value="avail">Available Now</option>
+                  <option value="out">Out of Stock</option>
+                </select>
+              </div>
+              <div>
+                <span id="resultsCount" style="font-size: 13px; color: var(--text-sub);">Showing 8 books</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Book Grid -->
+          <div class="book-grid" id="bookGrid"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Book Modal -->
+  <div class="modal" id="bookModal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="modalTitle" style="color: #fff; font-size: 18px;">Add New Book</h3>
+        <button class="btn sm outline" onclick="closeBookModal()" style="padding: 2px 8px;">✕</button>
+      </div>
+      <form class="form" onsubmit="saveBook(event)">
+        <input type="hidden" id="bookId">
+        <div class="form-group">
+          <label for="bookTitle">Book Title</label>
+          <input type="text" id="bookTitle" required placeholder="e.g. Clean Code">
+        </div>
+        <div class="form-group">
+          <label for="bookAuthor">Author</label>
+          <input type="text" id="bookAuthor" required placeholder="e.g. Robert C. Martin">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bookIsbn">ISBN</label>
+            <input type="text" id="bookIsbn" required placeholder="978-0132350884">
+          </div>
+          <div class="form-group">
+            <label for="bookCategory">Category</label>
+            <select id="bookCategory">
+              <option value="Computer Science">Computer Science</option>
+              <option value="Technology">Technology</option>
+              <option value="Science">Science</option>
+              <option value="Fiction">Fiction</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bookTotal">Total Copies</label>
+            <input type="number" id="bookTotal" min="1" max="100" value="5" required>
+          </div>
+          <div class="form-group">
+            <label for="bookAvailable">Available Copies</label>
+            <input type="number" id="bookAvailable" min="0" max="100" value="5" required>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+          <button type="button" class="btn outline" onclick="closeBookModal()">Cancel</button>
+          <button type="submit" class="btn">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    renderSidebar("books");
+    renderTopbar("Book Catalog", "Browse, search and manage library collection");
+
+    var currentUser = getUser();
+    var currentCategory = "All";
+
+    // Show add book button for admin and librarian
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "librarian")) {
+      document.getElementById("addBookBtn").style.display = "inline-flex";
+    }
+
+    // Check for query param from topbar
+    var urlParams = new URLSearchParams(window.location.search);
+    var qParam = urlParams.get("q");
+    if (qParam) {
+      document.getElementById("searchInput").value = qParam;
+    }
+
+    function setCategory(cat, el) {
+      currentCategory = cat;
+      var chips = document.querySelectorAll(".chip");
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].classList.remove("active");
+      }
+      if (el) el.classList.add("active");
+      renderBooks();
+    }
+
+    function renderBooks() {
+      var allBooks = getData("books");
+      var query = document.getElementById("searchInput").value.toLowerCase().trim();
+      var avail = document.getElementById("availFilter").value;
+
+      var filtered = [];
+      for (var i = 0; i < allBooks.length; i++) {
+        var b = allBooks[i];
+        var matchCat = (currentCategory === "All" || b.category.toLowerCase() === currentCategory.toLowerCase());
+        var matchQuery = (!query ||
+          b.title.toLowerCase().indexOf(query) !== -1 ||
+          b.author.toLowerCase().indexOf(query) !== -1 ||
+          b.isbn.toLowerCase().indexOf(query) !== -1
+        );
+        var matchAvail = true;
+        if (avail === "avail") matchAvail = (b.available > 0);
+        if (avail === "out") matchAvail = (b.available <= 0);
+
+        if (matchCat && matchQuery && matchAvail) {
+          filtered.push(b);
+        }
+      }
+
+      document.getElementById("resultsCount").textContent = "Showing " + filtered.length + " books";
+
+      var grid = document.getElementById("bookGrid");
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-sub); background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border);">No books found matching your search.</div>';
+        return;
+      }
+
+      var html = "";
+      for (var j = 0; j < filtered.length; j++) {
+        var book = filtered[j];
+        var isAvail = book.available > 0;
+        var badge = isAvail
+          ? '<span class="tag green">Available</span>'
+          : '<span class="tag red">Out of Stock</span>';
+
+        var bg = book.gradient || "linear-gradient(135deg, #1e3a8a, #3b5bfd)";
+
+        var actionButtons = "";
+        if (currentUser && (currentUser.role === "admin" || currentUser.role === "librarian")) {
+          actionButtons =
+            '<div style="display: flex; gap: 6px; width: 100%;">' +
+              '<button class="btn sm outline" style="flex: 1;" onclick="editBook(' + book.id + ')">Edit</button>' +
+              '<button class="btn sm danger" style="padding: 5px 8px;" onclick="deleteBook(' + book.id + ')">🗑</button>' +
+            '</div>';
+        } else {
+          // Student action
+          if (isAvail) {
+            actionButtons = '<a href="book.html?id=' + book.id + '" class="btn sm outline" style="width: 100%;">View & Reviews</a>';
+          } else {
+            actionButtons = '<button class="btn sm" style="width: 100%;" onclick="reserveClick(' + book.id + ')">Reserve Book</button>';
+          }
+        }
+
+        html +=
+          '<div class="book-card">' +
+            '<div class="book-cover" style="background: ' + bg + ';">' +
+              '<div>' + book.title + '</div>' +
+              '<span>' + book.category + '</span>' +
+            '</div>' +
+            '<div class="book-body">' +
+              '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">' +
+                '<a href="book.html?id=' + book.id + '" class="book-title" style="color: #fff;">' + book.title + '</a>' +
+                badge +
+              '</div>' +
+              '<div class="book-author">by ' + book.author + '</div>' +
+              '<div class="book-isbn">ISBN: ' + book.isbn + '</div>' +
+              '<div style="font-size: 11.5px; color: var(--text-sub); margin-top: 4px;">' +
+                'Copies: <strong style="color: #fff;">' + book.available + '</strong> / ' + book.total +
+              '</div>' +
+              '<div class="book-foot">' +
+                actionButtons +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      grid.innerHTML = html;
+    }
+
+    function openBookModal() {
+      document.getElementById("modalTitle").textContent = "Add New Book";
+      document.getElementById("bookId").value = "";
+      document.getElementById("bookTitle").value = "";
+      document.getElementById("bookAuthor").value = "";
+      document.getElementById("bookIsbn").value = "";
+      document.getElementById("bookCategory").value = "Computer Science";
+      document.getElementById("bookTotal").value = 5;
+      document.getElementById("bookAvailable").value = 5;
+      document.getElementById("bookModal").classList.add("open");
+    }
+
+    function closeBookModal() {
+      document.getElementById("bookModal").classList.remove("open");
+    }
+
+    function editBook(id) {
+      var allBooks = getData("books");
+      for (var i = 0; i < allBooks.length; i++) {
+        if (allBooks[i].id == id) {
+          var b = allBooks[i];
+          document.getElementById("modalTitle").textContent = "Edit Book";
+          document.getElementById("bookId").value = b.id;
+          document.getElementById("bookTitle").value = b.title;
+          document.getElementById("bookAuthor").value = b.author;
+          document.getElementById("bookIsbn").value = b.isbn;
+          document.getElementById("bookCategory").value = b.category;
+          document.getElementById("bookTotal").value = b.total;
+          document.getElementById("bookAvailable").value = b.available;
+          document.getElementById("bookModal").classList.add("open");
+          return;
+        }
+      }
+    }
+
+    function saveBook(e) {
+      e.preventDefault();
+      var id = document.getElementById("bookId").value;
+      var title = document.getElementById("bookTitle").value.trim();
+      var author = document.getElementById("bookAuthor").value.trim();
+      var isbn = document.getElementById("bookIsbn").value.trim();
+      var category = document.getElementById("bookCategory").value;
+      var total = parseInt(document.getElementById("bookTotal").value) || 1;
+      var available = parseInt(document.getElementById("bookAvailable").value) || 0;
+
+      var allBooks = getData("books");
+
+      if (id) {
+        // Update
+        for (var i = 0; i < allBooks.length; i++) {
+          if (allBooks[i].id == id) {
+            allBooks[i].title = title;
+            allBooks[i].author = author;
+            allBooks[i].isbn = isbn;
+            allBooks[i].category = category;
+            allBooks[i].total = total;
+            allBooks[i].available = available;
+            break;
+          }
+        }
+      } else {
+        // Add new
+        var gradients = [
+          "linear-gradient(135deg, #1e3a8a, #3b5bfd)",
+          "linear-gradient(135deg, #065f46, #10b981)",
+          "linear-gradient(135deg, #7c2d12, #ea580c)",
+          "linear-gradient(135deg, #581c87, #9333ea)",
+          "linear-gradient(135deg, #134e4a, #14b8a6)"
+        ];
+        var newBook = {
+          id: Date.now(),
+          title: title,
+          author: author,
+          isbn: isbn,
+          category: category,
+          total: total,
+          available: available,
+          gradient: gradients[Math.floor(Math.random() * gradients.length)]
+        };
+        allBooks.push(newBook);
+
+        var acts = getData("activities");
+        acts.unshift({
+          id: Date.now(),
+          text: "Book added: " + title,
+          time: "Just now"
+        });
+        saveData("activities", acts);
+      }
+
+      saveData("books", allBooks);
+      closeBookModal();
+      renderBooks();
+    }
+
+    function deleteBook(id) {
+      if (!confirm("Are you sure you want to delete this book?")) return;
+      var allBooks = getData("books");
+      var filtered = [];
+      for (var i = 0; i < allBooks.length; i++) {
+        if (allBooks[i].id != id) {
+          filtered.push(allBooks[i]);
+        }
+      }
+      saveData("books", filtered);
+      renderBooks();
+    }
+
+    function reserveClick(bookId) {
+      var memberId = 1;
+      if (currentUser && currentUser.name === "Gopal Krishna") memberId = 1;
+      var res = reserveBook(bookId, memberId);
+      if (res.ok) {
+        alert("Book reserved successfully! You will be notified when it is available.");
+      } else {
+        alert(res.msg);
+      }
+    }
+
+    renderBooks();
+  </script>
+</body>
+</html>

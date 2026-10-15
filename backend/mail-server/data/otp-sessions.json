@@ -1,0 +1,14 @@
+{
+  "ckrishna2354@gmail.com": {
+    "hash": "$2a$10$UYWnsvgG93/mb5nS4.95/upaISMV99DlnUKci9EQKR.hqj4.X/Zm2",
+    "expiresAt": 1792045587037,
+    "attempts": 0,
+    "resends": 0,
+    "lastResentAt": 1792045290976,
+    "user": {
+      "name": "Gopal Krishna",
+      "email": "ckrishna2354@gmail.com",
+      "role": "student"
+    }
+  }
+}

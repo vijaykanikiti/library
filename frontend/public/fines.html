@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Due Date & Fines - LibraryMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    checkRole(["admin", "librarian", "student"]);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="body">
+      <!-- Sidebar -->
+      <aside class="side" id="sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="main" style="padding: 0;">
+        <header class="topbar" id="topbar"></header>
+
+        <div style="padding: 24px;">
+          <!-- Page Header -->
+          <div class="head" id="pageHeader">
+            <div>
+              <h2>Due Dates & Fines</h2>
+              <p>Track overdue books and calculate penalty fees</p>
+            </div>
+          </div>
+
+          <!-- Fine Summary Cards -->
+          <div class="grid">
+            <div class="card red">
+              <h3>Overdue Loans</h3>
+              <div class="num" id="statOverdueCount">0</div>
+              <div class="card-icon">⚠️</div>
+            </div>
+            <div class="card orange">
+              <h3>Total Fine Amount</h3>
+              <div class="num" id="statTotalFine">Rs. 0.00</div>
+              <div class="card-icon">💰</div>
+            </div>
+            <div class="card green">
+              <h3>On-Time Loans</h3>
+              <div class="num" id="statOnTimeCount">0</div>
+              <div class="card-icon">✅</div>
+            </div>
+            <div class="card blue">
+              <h3>Fine Rate</h3>
+              <div class="num">Rs. 5 / day</div>
+              <div class="card-icon">ℹ️</div>
+            </div>
+          </div>
+
+          <!-- Fines Table Box -->
+          <div class="box">
+            <div class="box-head">
+              <h3>Circulation & Overdue Penalty Details</h3>
+              <div style="min-width: 220px;">
+                <input type="text" id="finesSearch" placeholder="Search member or book..." oninput="renderFinesTable()" style="width: 100%; padding: 6px 12px; background: #0d1733; border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
+              </div>
+            </div>
+            <div class="scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Book Title</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Fine</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="finesTableBody"></tbody>
+              </table>
+            </div>
+
+            <!-- Footer Banner Line matching requirement -->
+            <div style="margin-top: 18px; padding: 14px 18px; background: #0d1733; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
+              <div id="finesSummaryBanner" style="font-weight: 600; color: #fff; font-size: 13.5px;">
+                0 overdue books | Total fine: Rs. 0.00
+              </div>
+              <div style="font-size: 12px; color: var(--text-sub);">
+                Rate: Rs. 5.00 per overdue day calculated automatically
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    renderSidebar("fines");
+    renderTopbar("Due Dates & Fines", "Track overdue books and calculate penalty fees");
+
+    var currentUser = getUser();
+
+    function renderFinesTable() {
+      var allIssues = getData("issues");
+      var q = document.getElementById("finesSearch").value.toLowerCase().trim();
+      var today = getToday();
+      var todayD = new Date(today);
+
+      var overdueCount = 0;
+      var onTimeCount = 0;
+      var totalFine = 0;
+
+      var rows = [];
+
+      for (var i = 0; i < allIssues.length; i++) {
+        var it = allIssues[i];
+
+        if (currentUser && currentUser.role === "student") {
+          if (it.memberName !== currentUser.name && it.memberId != currentUser.id) {
+            continue;
+          }
+        }
+
+        var matchQ = (!q ||
+          it.memberName.toLowerCase().indexOf(q) !== -1 ||
+          it.bookTitle.toLowerCase().indexOf(q) !== -1
+        );
+
+        if (!matchQ) continue;
+
+        var dueD = new Date(it.dueDate);
+        var endDate = it.returnDate ? new Date(it.returnDate) : todayD;
+        var diff = Math.ceil((endDate.getTime() - dueD.getTime()) / (1000 * 60 * 60 * 24));
+        var daysLate = diff > 0 ? diff : 0;
+        var fine = daysLate * 5;
+
+        var isOverdue = (daysLate > 0 && it.status !== "Returned") || (it.status === "Overdue");
+        if (isOverdue) {
+          overdueCount++;
+          totalFine += fine;
+        } else {
+          onTimeCount++;
+        }
+
+        rows.push({
+          issue: it,
+          daysLate: daysLate,
+          fine: fine,
+          isOverdue: isOverdue
+        });
+      }
+
+      document.getElementById("statOverdueCount").textContent = overdueCount;
+      document.getElementById("statTotalFine").textContent = "Rs. " + totalFine.toFixed(2);
+      document.getElementById("statOnTimeCount").textContent = onTimeCount;
+      document.getElementById("finesSummaryBanner").textContent =
+        overdueCount + " overdue books | Total fine: Rs. " + totalFine.toFixed(2);
+
+      var tbody = document.getElementById("finesTableBody");
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 24px;">No loan or fine records found.</td></tr>';
+        return;
+      }
+
+      var html = "";
+      for (var j = 0; j < rows.length; j++) {
+        var r = rows[j];
+        var it = r.issue;
+        var statusBadge = r.isOverdue
+          ? '<span class="tag red">Overdue</span>'
+          : '<span class="tag green">On Time</span>';
+
+        var actionHtml = "-";
+        if (r.fine > 0) {
+          if (currentUser && (currentUser.role === "admin" || currentUser.role === "librarian")) {
+            actionHtml = '<button class="btn sm" onclick="clearFine(' + it.id + ')">Clear / Pay</button>';
+          } else {
+            actionHtml = '<button class="btn sm outline" onclick="payStudentFine(' + it.id + ')">Pay Rs. ' + r.fine + '</button>';
+          }
+        }
+
+        html +=
+          '<tr>' +
+            '<td><strong>' + it.memberName + '</strong></td>' +
+            '<td>' + it.bookTitle + '</td>' +
+            '<td>' + it.dueDate + '</td>' +
+            '<td>' + r.daysLate + ' days</td>' +
+            '<td><strong style="color: ' + (r.fine > 0 ? "var(--red)" : "var(--green)") + ';">Rs. ' + r.fine.toFixed(2) + '</strong></td>' +
+            '<td>' + statusBadge + '</td>' +
+            '<td>' + actionHtml + '</td>' +
+          '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    function clearFine(id) {
+      if (!confirm("Confirm payment and clear fine for this loan?")) return;
+      var allIssues = getData("issues");
+      for (var i = 0; i < allIssues.length; i++) {
+        if (allIssues[i].id == id) {
+          allIssues[i].status = "Returned";
+          allIssues[i].returnDate = getToday();
+          break;
+        }
+      }
+      saveData("issues", allIssues);
+      alert("Fine cleared and record updated.");
+      renderFinesTable();
+    }
+
+    function payStudentFine(id) {
+      alert("Payment successful! Fine has been marked as settled.");
+      clearFine(id);
+    }
+
+    renderFinesTable();
+  </script>
+</body>
+</html>

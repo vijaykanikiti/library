@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "Gopal Krishna",
+    "email": "gopalkrishnagopal6363@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "Gopal Krishna",
+    "email": "gopalkrishnagopal6363@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "librarian"
+  },
+  {
+    "id": 3,
+    "name": "Gopal Krishna",
+    "email": "gopalkrishnagopal6363@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "student"
+  },
+  {
+    "id": 4,
+    "name": "Gopal Krishna",
+    "email": "ckrishna2354@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "student"
+  },
+  {
+    "id": 5,
+    "name": "Gopal Krishna",
+    "email": "ckrishna2354@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "librarian"
+  },
+  {
+    "id": 6,
+    "name": "Gopal Krishna",
+    "email": "ckrishna2354@gmail.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "admin"
+  },
+  {
+    "id": 7,
+    "name": "Gopal Krishna",
+    "email": "admin@libraspace.com",
+    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
+    "role": "admin",
+    "sendToEmail": "gopalkrishnagopal6363@gmail.com"
+  }
+]
