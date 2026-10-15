@@ -94,7 +94,6 @@ public class ReserveService {
     Reserve reserve = reserveRepo.findById(reserveId)
         .orElseThrow(() -> new NotFound("Reservation not found with ID: " + reserveId));
 
-    // Check permission: Student can only cancel their own; Admin/Librarian can cancel any
     if (currentUser.getRole() == User.Role.STUDENT && !reserve.getUser().getId().equals(currentUser.getId())) {
       throw new BadRequest("You can only cancel your own reservations.");
     }
@@ -114,7 +113,6 @@ public class ReserveService {
         Notice.Type.INFO
     );
 
-    // If the cancelled reservation was holding an available copy, allocate it to next FIFO reservation or restore stock
     if (wasAvailable) {
       processNextInQueue(reserve.getBook());
     }
@@ -124,7 +122,6 @@ public class ReserveService {
 
   @Transactional
   public void processNextInQueue(Book book) {
-    // Expire any outdated AVAILABLE reservations first
     checkAndExpireReservations();
 
     Optional<Reserve> nextReserve = reserveRepo.findFirstByBookIdAndStatusOrderByQueueOrderAsc(book.getId(), Reserve.Status.PENDING);
@@ -141,7 +138,6 @@ public class ReserveService {
       noticeService.sendNotice(r.getUser(), "Reserved Book Available!", message, Notice.Type.SUCCESS);
       mailService.sendNotificationEmail(r.getUser().getEmail(), "Reserved Book Ready for Pickup: " + book.getTitle(), message);
     } else {
-      // No one is waiting, increase book stock
       book.setAvailableCopies(Math.min(book.getAvailableCopies() + 1, book.getTotalCopies()));
       bookRepo.save(book);
     }
@@ -161,7 +157,6 @@ public class ReserveService {
           Notice.Type.WARNING
       );
 
-      // Pass on to next in FIFO queue or restore book copy
       processNextInQueue(r.getBook());
     }
   }

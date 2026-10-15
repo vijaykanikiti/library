@@ -8,6 +8,7 @@ import {
   EyeOff,
   ArrowRight,
   LoaderCircle,
+  ShieldCheck,
 } from "lucide-react";
 import AuthLayout from "../layouts/AuthLayout";
 import { loginWithGoogle } from "../services/authService";
@@ -33,6 +34,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("student");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -86,15 +88,54 @@ export default function Register() {
         name: name.trim(),
         email: sanitizedEmail,
         password,
-        role: "student",
+        role,
       };
 
       allUsers.push(newUser);
       localStorage.setItem("users", JSON.stringify(allUsers));
 
+      if (role === "student") {
+        try {
+          const students = JSON.parse(
+            localStorage.getItem("libraspace_students") || "[]"
+          );
+          if (!students.some((s) => s.email?.toLowerCase() === sanitizedEmail)) {
+            students.push({
+              id: Date.now(),
+              name: name.trim(),
+              email: sanitizedEmail,
+              studentId: `STU${String(students.length + 1).padStart(3, "0")}`,
+              department: "General Studies",
+              phone: "",
+              borrowedCount: 0,
+              overdueCount: 0,
+              status: "Active",
+            });
+            localStorage.setItem("libraspace_students", JSON.stringify(students));
+          }
+        } catch {}
+      } else {
+        try {
+          const adminUsers = JSON.parse(
+            localStorage.getItem("libraspace_admin_users") || "[]"
+          );
+          if (!adminUsers.some((u) => u.email?.toLowerCase() === sanitizedEmail)) {
+            adminUsers.push({
+              id: Date.now(),
+              name: name.trim(),
+              email: sanitizedEmail,
+              role: role === "admin" ? "Admin" : "Librarian",
+              status: "Active",
+              joined: new Date().toISOString().slice(0, 10),
+            });
+            localStorage.setItem("libraspace_admin_users", JSON.stringify(adminUsers));
+          }
+        } catch {}
+      }
+
       addNotification({
-        title: "New Student Registered",
-        body: `${name.trim()} (${sanitizedEmail}) registered a new student patron account.`,
+        title: `New ${role.charAt(0).toUpperCase() + role.slice(1)} Registered`,
+        body: `${name.trim()} (${sanitizedEmail}) registered a new ${role} account.`,
         type: "system",
         toRole: "admin",
         toEmail: "all",
@@ -102,7 +143,7 @@ export default function Register() {
       });
 
       navigate("/login", {
-        state: { message: "Account created. Please log in." },
+        state: { message: "Account created successfully. Please log in." },
       });
     } catch {
       setError("Registration failed. Please try again.");
@@ -206,6 +247,31 @@ export default function Register() {
               autoComplete="name"
               required
             />
+          </div>
+
+          <label className="auth-label" htmlFor="register-role">
+            Register As (Role)
+          </label>
+          <div className="auth-input-wrapper">
+            <ShieldCheck size={19} />
+            <select
+              id="register-role"
+              value={role}
+              onChange={(event) => setRole(event.target.value)}
+              style={{
+                width: "100%",
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "inherit",
+                fontSize: "0.95rem",
+                cursor: "pointer",
+              }}
+            >
+              <option value="student" style={{ color: "#111" }}>Student</option>
+              <option value="librarian" style={{ color: "#111" }}>Librarian</option>
+              <option value="admin" style={{ color: "#111" }}>Admin</option>
+            </select>
           </div>
 
           <label className="auth-label" htmlFor="register-email">

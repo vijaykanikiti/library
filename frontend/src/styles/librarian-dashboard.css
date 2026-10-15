@@ -1,0 +1,444 @@
+/* Librarian Dashboard */
+
+.librarian-dashboard {
+  width: 100%;
+  min-width: 0;
+  padding: 28px;
+  color: var(--text-primary);
+}
+
+/* Header */
+
+.librarian-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.librarian-eyebrow {
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.librarian-dashboard-header h1 {
+  margin: 9px 0;
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.librarian-dashboard-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.librarian-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Statistics */
+
+.librarian-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.librarian-stat-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.librarian-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-color);
+}
+
+.librarian-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.librarian-stat-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.librarian-stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.librarian-stat-icon.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.librarian-stat-icon.purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.librarian-stat-icon.orange {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.librarian-stat-icon.red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.librarian-stat-trend {
+  color: var(--text-secondary);
+}
+
+.librarian-stat-title {
+  margin: 0 0 9px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.librarian-stat-card h2 {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.librarian-stat-description {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Sections */
+
+.librarian-section {
+  margin-bottom: 30px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+}
+
+.librarian-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.librarian-section-heading h2 {
+  margin: 0 0 6px;
+  color: var(--text-primary);
+  font-size: 20px;
+}
+
+.librarian-section-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.librarian-section-heading > svg {
+  color: var(--primary-color);
+}
+
+/* Quick Actions */
+
+.librarian-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.librarian-action-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 13px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.librarian-action-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.librarian-action-icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--primary-color);
+}
+
+.librarian-action-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.librarian-action-content strong {
+  font-size: 14px;
+}
+
+.librarian-action-content small {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.librarian-action-card > svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+/* Recent Activities */
+
+.librarian-activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.librarian-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.librarian-activity-item:first-child {
+  padding-top: 0;
+}
+
+.librarian-activity-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.librarian-activity-icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+}
+
+.librarian-activity-icon.issue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.librarian-activity-icon.return {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.librarian-activity-icon.member {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.librarian-activity-icon.overdue {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.librarian-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.librarian-activity-content strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.librarian-activity-content p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.librarian-activity-item time {
+  color: var(--text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Dashboard Note */
+
+.librarian-dashboard-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 13px;
+  background: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+.librarian-dashboard-note svg {
+  flex-shrink: 0;
+}
+
+.librarian-dashboard-note p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+
+@media (max-width: 1000px) {
+  .librarian-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .librarian-dashboard {
+    padding: 18px;
+  }
+
+  .librarian-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .librarian-header-badge {
+    white-space: normal;
+  }
+
+  .librarian-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .librarian-section {
+    padding: 17px;
+  }
+
+  .librarian-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .librarian-activity-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .librarian-activity-item time {
+    width: 100%;
+    padding-left: 56px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Theme Toggle and Header Actions */
+
+.librarian-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.librarian-header-welcome {
+  min-width: 0;
+}
+
+.librarian-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Responsive Header */
+
+@media (max-width: 650px) {
+  .librarian-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .librarian-header-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}

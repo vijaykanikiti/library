@@ -1,87 +1,88 @@
+/* =====================================
+   LIGHT THEME
+===================================== */
+
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
+
   --bg-primary: #f5f7fb;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #f8fafc;
-  --bg-card-subtle: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+
+  --text-primary: #182230;
+  --text-secondary: #64748b;
+
   --border-color: #e2e8f0;
-  --border-subtle: #f1f5f9;
+
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
-  --primary-subtle: #eef2ff;
+
   --accent-color: #0ea5e9;
+
   --navbar-bg: #ffffff;
   --sidebar-bg: #ffffff;
-  --sidebar-border: #e2e8f0;
-  --sidebar-active-bg: #eef2ff;
-  --sidebar-active-text: #4f46e5;
+
   --shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
-  --badge-due-bg: #fff7ed;
-  --badge-due-text: #ea580c;
-  --badge-due-border: #fed7aa;
 }
+
+/* =====================================
+   DARK THEME
+===================================== */
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-primary: #0c1322;
-  --bg-secondary: #0e1628;
-  --bg-card: #111b2f;
-  --bg-card-hover: #16243f;
-  --bg-card-subtle: #142038;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: #1d2d4a;
-  --border-subtle: #192742;
+
+  --bg-primary: #0b1120;
+  --bg-secondary: #111c30;
+  --bg-card: #172338;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #b0bfd2;
+
+  --border-color: #334155;
+
   --primary-color: #818cf8;
   --primary-hover: #6366f1;
-  --primary-subtle: rgba(99, 102, 241, 0.15);
+
   --accent-color: #38bdf8;
-  --navbar-bg: #0e1628;
-  --sidebar-bg: #0c1322;
-  --sidebar-border: #1a2744;
-  --sidebar-active-bg: #18253e;
-  --sidebar-active-text: #818cf8;
-  --shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --badge-due-bg: rgba(251, 146, 60, 0.12);
-  --badge-due-text: #fb923c;
-  --badge-due-border: rgba(251, 146, 60, 0.35);
+
+  --navbar-bg: #111c30;
+  --sidebar-bg: #111c30;
+
+  --shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
+
+/* =====================================
+   EYE COMFORT THEME
+===================================== */
 
 :root[data-theme="eye-comfort"] {
   color-scheme: light;
+
   --bg-primary: #f4efe4;
   --bg-secondary: #faf6ed;
   --bg-card: #fffaf0;
-  --bg-card-hover: #f8f1e4;
-  --bg-card-subtle: #f0e7d7;
+
   --text-primary: #443b32;
   --text-secondary: #776b5d;
-  --text-muted: #9c8e80;
+
   --border-color: #e3d7c5;
-  --border-subtle: #ded1bd;
+
   --primary-color: #8b6845;
   --primary-hover: #715236;
-  --primary-subtle: rgba(139, 104, 69, 0.12);
+
   --accent-color: #7c8b58;
+
   --navbar-bg: #faf6ed;
   --sidebar-bg: #faf6ed;
-  --sidebar-border: #e3d7c5;
-  --sidebar-active-bg: #f0e5d5;
-  --sidebar-active-text: #715236;
+
   --shadow: 0 8px 25px rgba(75, 55, 35, 0.07);
-  --shadow-sm: 0 2px 8px rgba(75, 55, 35, 0.05);
-  --badge-due-bg: #fdf3e7;
-  --badge-due-text: #b45309;
-  --badge-due-border: #fcd34d;
 }
+
+/* =====================================
+   GLOBAL THEME APPLICATION
+===================================== */
 
 html {
   min-height: 100%;
@@ -91,17 +92,18 @@ html {
 body,
 #root {
   min-height: 100vh;
-  min-height: 100dvh;
-  width: 100%;
   margin: 0;
-  padding: 0;
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+
   font-family: "Segoe UI", Arial, sans-serif;
-  transition: background-color 0.25s ease, color 0.25s ease;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 * {
@@ -111,9 +113,12 @@ body {
 .theme-card {
   background-color: var(--bg-card);
   color: var(--text-primary);
+
   border: 1px solid var(--border-color);
   border-radius: 16px;
+
   box-shadow: var(--shadow);
+
   transition:
     background-color 0.25s ease,
     color 0.25s ease,

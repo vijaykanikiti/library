@@ -1,0 +1,626 @@
+.my-borrowings-page {
+  width: 100%;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+.borrowings-header {
+  margin-bottom: 25px;
+}
+
+.borrowings-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--primary-color);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.3px;
+}
+
+.borrowings-header h1 {
+  color: var(--text-primary);
+  font-size: clamp(26px, 3vw, 35px);
+  font-weight: 850;
+  margin: 12px 0 8px;
+}
+
+.borrowings-header p {
+  max-width: 650px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* STATISTICS */
+
+.borrowings-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 17px;
+  margin-bottom: 25px;
+}
+
+.borrowings-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 21px;
+
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 13px;
+  box-shadow: var(--shadow);
+}
+
+.borrowings-stat-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+}
+
+.borrowings-purple {
+  color: #7c3aed;
+  background: #ede9fe;
+}
+
+.borrowings-orange {
+  color: #c2410c;
+  background: #ffedd5;
+}
+
+.borrowings-green {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.borrowings-stat-card span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.borrowings-stat-card h2 {
+  color: var(--text-primary);
+  font-size: 27px;
+  font-weight: 850;
+  margin: 7px 0 0;
+}
+
+/* SEARCH AND FILTER */
+
+.borrowings-toolbar {
+  display: flex;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.borrowings-search {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 0 15px;
+  min-height: 47px;
+
+  color: var(--text-secondary);
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+}
+
+.borrowings-search:focus-within {
+  border-color: var(--primary-color);
+}
+
+.borrowings-search input {
+  flex: 1;
+  min-width: 0;
+
+  color: var(--text-primary);
+  background: transparent;
+
+  border: none;
+  outline: none;
+
+  font-size: 12px;
+}
+
+.borrowings-toolbar select {
+  min-width: 190px;
+  padding: 0 12px;
+
+  color: var(--text-primary);
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+
+  font-size: 11px;
+  outline: none;
+}
+
+/* FEEDBACK */
+
+.borrowings-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 13px 15px;
+  margin-bottom: 18px;
+
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.borrowings-message button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  padding: 4px;
+
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* RECORDS PANEL */
+
+.borrowings-panel {
+  overflow: hidden;
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+
+  box-shadow: var(--shadow);
+}
+
+.borrowings-panel-heading {
+  padding: 23px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.borrowings-panel-heading h2 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 850;
+  margin: 0 0 7px;
+}
+
+.borrowings-panel-heading p {
+  color: var(--text-secondary);
+  font-size: 10px;
+  margin: 0;
+}
+
+.borrowings-record-list {
+  padding: 0 22px;
+}
+
+.borrowing-record-card {
+  display: grid;
+  grid-template-columns: 48px minmax(150px, 1.2fr) minmax(175px, 1fr) auto;
+  align-items: center;
+  gap: 17px;
+
+  padding: 22px 0;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.borrowing-record-card:last-child {
+  border-bottom: none;
+}
+
+.borrowing-book-icon {
+  width: 46px;
+  height: 52px;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--primary-color);
+  background: color-mix(
+    in srgb,
+    var(--primary-color) 10%,
+    var(--bg-secondary)
+  );
+
+  border-radius: 9px;
+}
+
+.borrowing-book-information h3 {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.5;
+  margin: 0 0 5px;
+}
+
+.borrowing-book-information > p {
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin: 0 0 9px;
+}
+
+.borrowing-isbn {
+  color: var(--text-secondary);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.borrowing-date-information {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.borrowing-date-information > span,
+.borrowing-date-information > strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+}
+
+.borrowing-date-information > span {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.borrowing-date-information > strong {
+  color: var(--text-primary);
+  font-weight: 750;
+}
+
+.borrowing-date-information > small {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.borrowing-date-information .borrowing-overdue-text {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.borrowing-date-information .borrowing-due-soon-text {
+  color: #d97706;
+  font-weight: 800;
+}
+
+/* STATUS AND ACTIONS */
+
+.borrowing-record-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 112px;
+}
+
+.borrowing-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 9px;
+  border-radius: 6px;
+
+  font-size: 9px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.borrowing-status-active {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.borrowing-status-overdue {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.borrowing-status-returned {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.borrowing-details-button,
+.borrowing-renew-button {
+  min-height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 7px 10px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.borrowing-details-button {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.borrowing-details-button:hover {
+  border-color: var(--primary-color);
+}
+
+.borrowing-renew-button {
+  color: #ffffff;
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.borrowing-renew-button:hover {
+  background: var(--primary-hover);
+}
+
+/* EMPTY STATE */
+
+.borrowings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 60px 20px;
+
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.borrowings-empty h3 {
+  color: var(--text-primary);
+  font-size: 17px;
+  margin: 16px 0 7px;
+}
+
+.borrowings-empty p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* DETAILS MODAL */
+
+.borrowing-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.borrowing-details-modal {
+  width: min(550px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: 27px;
+
+  color: var(--text-primary);
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+}
+
+.borrowing-modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.borrowing-modal-heading > div > span {
+  color: var(--primary-color);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1.2px;
+}
+
+.borrowing-modal-heading h2 {
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+
+.borrowing-modal-heading > button {
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.borrowing-modal-author {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin: 9px 0 23px;
+}
+
+.borrowing-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.borrowing-modal-grid > div {
+  min-width: 0;
+  padding: 13px;
+
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.borrowing-modal-grid span,
+.borrowing-modal-grid strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.borrowing-modal-grid span {
+  color: var(--text-secondary);
+  font-size: 9px;
+  margin-bottom: 7px;
+}
+
+.borrowing-modal-grid strong {
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.borrowing-modal-close-button {
+  width: 100%;
+  min-height: 42px;
+
+  margin-top: 23px;
+
+  color: #ffffff;
+  background: var(--primary-color);
+
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* DEMONSTRATION NOTE */
+
+.borrowings-demo-note {
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.7;
+  text-align: center;
+  margin: 22px 0 5px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .borrowing-record-card {
+    grid-template-columns: 45px minmax(140px, 1fr) minmax(150px, 1fr);
+  }
+
+  .borrowing-record-actions {
+    grid-column: 2 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .borrowing-status {
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .borrowings-stats {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .borrowings-stat-card {
+    padding: 16px;
+  }
+
+  .borrowings-toolbar {
+    flex-direction: column;
+  }
+
+  .borrowings-toolbar select {
+    min-height: 44px;
+  }
+
+  .borrowings-record-list {
+    padding: 0 15px;
+  }
+
+  .borrowing-record-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 12px;
+    padding: 19px 0;
+  }
+
+  .borrowing-book-icon {
+    width: 40px;
+    height: 46px;
+  }
+
+  .borrowing-date-information,
+  .borrowing-record-actions {
+    grid-column: 2;
+  }
+
+  .borrowing-record-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .borrowing-status {
+    margin-right: 0;
+  }
+
+  .borrowing-details-button,
+  .borrowing-renew-button {
+    flex: 1;
+  }
+
+  .borrowing-details-modal {
+    padding: 20px;
+  }
+}

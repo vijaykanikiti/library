@@ -82,7 +82,6 @@ public class UserService {
     }
 
     if (req.getRole() != null) {
-      // Check if removing the last admin
       if (user.getRole() == User.Role.ADMIN && req.getRole() != User.Role.ADMIN) {
         if (userRepo.countByRole(User.Role.ADMIN) <= 1) {
           throw new BadRequest("Cannot demote the only remaining administrator.");

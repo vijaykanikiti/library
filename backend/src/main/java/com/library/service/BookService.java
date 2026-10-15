@@ -97,7 +97,6 @@ public class BookService {
     book.setDescription(req.getDescription() != null ? req.getDescription().trim() : null);
     book.setShelfLocation(req.getShelfLocation() != null ? req.getShelfLocation().trim() : null);
 
-    // Adjust copies safely
     int oldTotal = book.getTotalCopies();
     int newTotal = req.getTotalCopies() != null ? req.getTotalCopies() : oldTotal;
     if (newTotal < 1) {
@@ -119,7 +118,6 @@ public class BookService {
   public void deleteBook(Long id) {
     Book book = getBookById(id);
 
-    // Check if there are active loans
     boolean hasActiveLoans = loanRepo.existsByBookIdAndStatusIn(id, Arrays.asList(Loan.Status.ACTIVE, Loan.Status.OVERDUE));
     if (hasActiveLoans) {
       throw new BadRequest("Cannot delete book '" + book.getTitle() + "' because there are active or overdue loans associated with it.");

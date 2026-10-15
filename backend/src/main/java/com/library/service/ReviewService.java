@@ -74,7 +74,6 @@ public class ReviewService {
     Review review = reviewRepo.findById(reviewId)
         .orElseThrow(() -> new NotFound("Review not found with ID: " + reviewId));
 
-    // Allow deletion if owner or ADMIN
     if (currentUser.getRole() != User.Role.ADMIN && !review.getUser().getId().equals(currentUser.getId())) {
       throw new BadRequest("You do not have permission to delete this review.");
     }

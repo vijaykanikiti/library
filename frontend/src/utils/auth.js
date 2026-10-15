@@ -3,7 +3,7 @@ export const AUTH_STORAGE_KEY = "libraspace-auth";
 export const SYSTEM_USERS = {
   admin: {
     name: "Gopal Krishna",
-    email: "admin@libraspace.com",
+    email: "gopalkrishnagopal6363@gmail.com",
     password: "krish4318",
     alternatePassword: "admin123",
     role: "admin",
@@ -17,14 +17,14 @@ export const SYSTEM_USERS = {
   },
   student: {
     name: "Gopal Krishna",
-    email: "ckrishna2354@gmail.com",
+    email: "gopalkrishnagopal6363@gmail.com",
     password: "krish4318",
     alternatePassword: "student123",
     role: "student",
   },
 };
 
-export const DEMO_EMAILS = [
+export const EXCLUDED_EMAILS = [
   "admin@lib.com",
   "lib@lib.com",
   "gopal@lib.com",
@@ -33,6 +33,12 @@ export const DEMO_EMAILS = [
   "rahul@lib.com",
   "priya@lib.com",
   "arvind@lib.com",
+  "rahul@example.com",
+  "priya@example.com",
+  "arun@example.com",
+  "sneha@example.com",
+  "kiran@example.com",
+  "admin@libraspace.com",
 ];
 
 export function sanitizeUserList(list) {
@@ -40,15 +46,14 @@ export function sanitizeUserList(list) {
   return list.filter((u) => {
     if (!u || !u.email) return false;
     const emailLower = u.email.toLowerCase().trim();
-    if (DEMO_EMAILS.includes(emailLower)) return false;
-    if (u.name === "devi" || u.name === "Chief Librarian") return false;
+    if (EXCLUDED_EMAILS.includes(emailLower)) return false;
+    if (emailLower.endsWith("@example.com")) return false;
+    if (u.name === "devi" || u.name === "Chief Librarian" || u.name === "Admin User") return false;
     if (u.name === "Admin" && emailLower.includes("lib.com")) return false;
     if (u.name === "Librarian" && emailLower.includes("lib.com")) return false;
     return true;
   });
 }
-
-export const DEMO_USERS = SYSTEM_USERS;
 
 export function getHomePathForRole(role) {
   const normRole = (role || "").toLowerCase().trim();
@@ -86,8 +91,8 @@ export function getUser() {
 export function login(user, _rememberMe = true) {
   const role = (user.role || "student").toLowerCase().trim();
   const payload = {
-    name: user.name || (role === "admin" ? "Gopal Krishna" : role === "librarian" ? "Librarian" : "devi"),
-    email: user.email || `${role}@libraspace.com`,
+    name: user.name || (role === "admin" ? "Gopal Krishna" : role === "librarian" ? "Gopal Krishna" : "Gopal Krishna"),
+    email: user.email || "gopalkrishnagopal6363@gmail.com",
     role: role,
   };
 
@@ -106,12 +111,12 @@ export function logout() {
 export function verifyUserCredentials(inputIdentifier, inputPassword, preferredRole = null) {
   const normalizedId = (inputIdentifier || "").trim().toLowerCase();
   const pass = (inputPassword || "").trim();
+  const targetRole = (preferredRole || "").toLowerCase().trim();
 
   if (!normalizedId || !pass) return null;
 
-  // 1. Check system users
-  const systemEntries = Object.values(SYSTEM_USERS);
-  for (const sysUser of systemEntries) {
+  if (targetRole && SYSTEM_USERS[targetRole]) {
+    const sysUser = SYSTEM_USERS[targetRole];
     const emailMatch = sysUser.email.toLowerCase() === normalizedId;
     const nameMatch = sysUser.name.toLowerCase() === normalizedId;
     const roleMatch = sysUser.role.toLowerCase() === normalizedId;
@@ -132,7 +137,28 @@ export function verifyUserCredentials(inputIdentifier, inputPassword, preferredR
     }
   }
 
-  // 2. Check registered users from localStorage
+  const systemEntries = Object.values(SYSTEM_USERS);
+  for (const sysUser of systemEntries) {
+    const emailMatch = sysUser.email.toLowerCase() === normalizedId;
+    const nameMatch = sysUser.name.toLowerCase() === normalizedId;
+    const roleMatch = sysUser.role.toLowerCase() === normalizedId;
+    const isIdMatch = emailMatch || nameMatch || roleMatch;
+
+    if (isIdMatch) {
+      const passMatch =
+        sysUser.password === pass ||
+        (sysUser.alternatePassword && sysUser.alternatePassword === pass);
+
+      if (passMatch) {
+        return {
+          name: sysUser.name,
+          email: sysUser.email,
+          role: targetRole || sysUser.role,
+        };
+      }
+    }
+  }
+
   try {
     const raw = localStorage.getItem("users");
     if (raw) {
@@ -145,7 +171,7 @@ export function verifyUserCredentials(inputIdentifier, inputPassword, preferredR
             return {
               name: u.name,
               email: u.email,
-              role: u.role || preferredRole || "student",
+              role: targetRole || u.role || "student",
             };
           }
         }

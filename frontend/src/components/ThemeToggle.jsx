@@ -1,26 +1,53 @@
-import { useState, useRef, useEffect } from "react";
-import { Sun, Moon, Eye, ChevronDown, Check } from "lucide-react";
-import { useTheme } from "../context/useTheme";
-import "../styles/theme-toggle.css";
+import React, { useState, useRef, useEffect } from "react";
 
-const themes = [
-  { value: "light", label: "Light Mode", icon: Sun },
-  { value: "dark", label: "Dark Mode", icon: Moon },
-  { value: "ocean", label: "Ocean Blue", icon: Eye },
-  { value: "rose", label: "Rose Garden", icon: Eye },
-];
+import {
+  Sun,
+  Moon,
+  Eye,
+  ChevronDown,
+  Check,
+} from "lucide-react";
+
+import { useTheme } from "../context/ThemeContext";
+
+import "../styles/theme-toggle.css";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+
   const [isOpen, setIsOpen] = useState(false);
+
   const dropdownRef = useRef(null);
 
-  const selectedTheme = themes.find((item) => item.value === theme) || themes[1];
+  const themes = [
+    {
+      value: "light",
+      label: "Light Mode",
+      icon: Sun,
+    },
+    {
+      value: "dark",
+      label: "Dark Mode",
+      icon: Moon,
+    },
+    {
+      value: "eye-comfort",
+      label: "Eye Comfort",
+      icon: Eye,
+    },
+  ];
+
+  const selectedTheme =
+    themes.find((item) => item.value === theme) || themes[0];
+
   const SelectedIcon = selectedTheme.icon;
 
   useEffect(() => {
     function handleOutsideClick(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     }
@@ -33,6 +60,7 @@ export default function ThemeToggle() {
 
     document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("keydown", handleEscape);
+
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEscape);
@@ -55,27 +83,47 @@ export default function ThemeToggle() {
         aria-label={`Selected theme: ${selectedTheme.label}`}
       >
         <SelectedIcon size={18} />
+
         <span>{selectedTheme.label}</span>
-        <ChevronDown size={16} className={`theme-chevron ${isOpen ? "rotated" : ""}`} />
+
+        <ChevronDown
+          size={16}
+          className={`theme-chevron ${isOpen ? "rotated" : ""}`}
+        />
       </button>
 
       {isOpen && (
-        <div className="theme-dropdown-menu" role="listbox" aria-label="Select website theme">
-          <div className="theme-dropdown-heading">Appearance</div>
+        <div
+          className="theme-dropdown-menu"
+          role="listbox"
+          aria-label="Select website theme"
+        >
+          <div className="theme-dropdown-heading">
+            Appearance
+          </div>
+
           {themes.map(({ value, label, icon: Icon }) => (
             <button
               type="button"
               key={value}
               role="option"
               aria-selected={theme === value}
-              className={`theme-dropdown-option ${theme === value ? "selected" : ""}`}
+              className={`theme-dropdown-option ${
+                theme === value ? "selected" : ""
+              }`}
               onClick={() => handleThemeChange(value)}
             >
               <span className="theme-option-icon">
                 <Icon size={18} />
               </span>
-              <span className="theme-option-label">{label}</span>
-              {theme === value && <Check size={17} className="theme-selected-check" />}
+
+              <span className="theme-option-label">
+                {label}
+              </span>
+
+              {theme === value && (
+                <Check size={17} className="theme-selected-check" />
+              )}
             </button>
           ))}
         </div>

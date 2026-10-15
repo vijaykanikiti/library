@@ -13,16 +13,10 @@ import {
   Shield,
   RotateCcw,
   ShieldCheck,
-  Smartphone,
-  KeyRound,
-  Sparkles,
   RefreshCw,
   X,
-  Check,
-  Copy,
   UserCheck,
   AlertCircle,
-  Info,
 } from "lucide-react";
 import AuthLayout from "../layouts/AuthLayout";
 import { loginWithGoogle } from "../services/authService";
@@ -39,7 +33,7 @@ const ROLE_CREDENTIALS = {
     password: "krish4318",
   },
   student: {
-    email: "ckrishna2354@gmail.com",
+    email: "gopalkrishnagopal6363@gmail.com",
     password: "krish4318",
   },
 };
@@ -61,7 +55,7 @@ const GOOGLE_ACCOUNTS = [
   },
   {
     name: "Gopal Krishna",
-    email: "ckrishna2354@gmail.com",
+    email: "gopalkrishnagopal6363@gmail.com",
     role: "student",
     roleLabel: "Research Patron (Active Scholar)",
     avatarBg: "#DB4437",
@@ -83,18 +77,16 @@ export default function Login() {
   const [flashMessage, setFlashMessage] = useState(location.state?.message || "");
   const [existingSession, setExistingSession] = useState(() => getUser());
 
-  // Google Chooser State
   const [googleChooserOpen, setGoogleChooserOpen] = useState(false);
   const [customGoogleEmail, setCustomGoogleEmail] = useState("");
   const [customGoogleName, setCustomGoogleName] = useState("");
   const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false);
 
-  // Real Email 2-Factor Authentication (2FA) State
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const [twoFactorUser, setTwoFactorUser] = useState(null);
   const [twoFactorDigits, setTwoFactorDigits] = useState(["", "", "", "", "", ""]);
-  const [twoFactorTimer, setTwoFactorTimer] = useState(300); // 5-minute countdown
-  const [resendCooldown, setResendCooldown] = useState(0); // 60-second cooldown
+  const [twoFactorTimer, setTwoFactorTimer] = useState(300);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [twoFactorError, setTwoFactorError] = useState("");
   const [twoFactorSuccess, setTwoFactorSuccess] = useState(false);
   const [twoFactorVerifying, setTwoFactorVerifying] = useState(false);
@@ -110,7 +102,6 @@ export default function Login() {
     }
   }, [flashMessage]);
 
-  // Real 5-minute OTP countdown timer
   useEffect(() => {
     let interval = null;
     if (twoFactorOpen && twoFactorTimer > 0 && !twoFactorSuccess) {
@@ -123,7 +114,6 @@ export default function Login() {
     };
   }, [twoFactorOpen, twoFactorTimer, twoFactorSuccess]);
 
-  // 60-second resend cooldown timer
   useEffect(() => {
     let interval = null;
     if (resendCooldown > 0) {
@@ -142,7 +132,6 @@ export default function Login() {
     return `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  // Audio chime for alerts
   const playAlertChime = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -151,8 +140,8 @@ export default function Login() {
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = "sine";
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12); // G5
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.12, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
       osc.start();
@@ -167,12 +156,10 @@ export default function Login() {
     setTwoFactorDigits(newDigits);
     setTwoFactorError("");
 
-    // Auto-focus next box
     if (value && index < 5) {
       digitInputRefs.current[index + 1]?.focus();
     }
 
-    // Check if all 6 digits filled
     const fullCode = newDigits.join("");
     if (fullCode.length === 6 && !newDigits.includes("")) {
       verifyTwoFactor(fullCode);
@@ -219,7 +206,11 @@ export default function Login() {
       playAlertChime();
 
       if (response && response.maskedEmail) {
-        setTwoFactorUser((prev) => ({ ...prev, maskedEmail: response.maskedEmail }));
+        setTwoFactorUser((prev) => ({
+          ...prev,
+          maskedEmail: response.maskedEmail,
+          otpCode: response.otpCode || prev?.otpCode || "",
+        }));
       }
     } catch (err) {
       setTwoFactorError(err.message || "Failed to resend verification code. Please try again.");
@@ -238,22 +229,22 @@ export default function Login() {
         role: twoFactorUser.role,
       });
 
-      if (response && response.token) {
+      if (response && (response.token || response.user)) {
         setTwoFactorSuccess(true);
         setTwoFactorError("");
 
-        // Trust device for 30 days if checked
         if (remember2faDevice) {
           try {
             localStorage.setItem(`libraspace_trusted_${twoFactorUser.email.toLowerCase()}`, "true");
           } catch (_) {}
         }
 
+        const targetRole = (response.user?.role || twoFactorUser.role || "student").toLowerCase().trim();
         const sessionPayload = {
           name: response.user?.name || twoFactorUser.email.split("@")[0],
           email: response.user?.email || twoFactorUser.email,
-          role: response.user?.role || twoFactorUser.role,
-          token: response.token,
+          role: targetRole,
+          token: response.token || ("token-" + Date.now()),
         };
 
         const jsonSession = JSON.stringify(sessionPayload);
@@ -262,10 +253,13 @@ export default function Login() {
           sessionStorage.setItem("libraspace-auth", jsonSession);
           localStorage.setItem("user", jsonSession);
           sessionStorage.setItem("user", jsonSession);
+          if (sessionPayload.token) {
+            localStorage.setItem("token", sessionPayload.token);
+            localStorage.setItem("auth_token", sessionPayload.token);
+          }
         } catch (_) {}
 
         setTimeout(() => {
-          const targetRole = (response.user?.role || twoFactorUser.role).toLowerCase().trim();
           if (targetRole === "admin") {
             navigate("/admin/dashboard", { replace: true });
           } else if (targetRole === "librarian") {
@@ -363,6 +357,7 @@ export default function Login() {
           email: email.trim(),
           role: selectedRole,
           maskedEmail: response.maskedEmail,
+          otpCode: response.otpCode || "",
         });
         setTwoFactorDigits(["", "", "", "", "", ""]);
         setTwoFactorTimer(300);
@@ -375,6 +370,20 @@ export default function Login() {
         setTimeout(() => {
           digitInputRefs.current[0]?.focus();
         }, 150);
+      } else if (response && (response.token || response.user)) {
+        const sessionPayload = {
+          name: response.user?.name || email.split("@")[0],
+          email: response.user?.email || email,
+          role: selectedRole,
+          token: response.token,
+        };
+        login(sessionPayload, rememberMe);
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("auth_token", response.token);
+        }
+        const targetPath = getHomePathForRole(sessionPayload.role);
+        navigate(targetPath, { replace: true });
       }
     } catch (err) {
       setFormError(err.message || "An unexpected error occurred during login. Please try again.");
@@ -386,54 +395,7 @@ export default function Login() {
   const handleGoogleLogin = () => {
     setFormError("");
     setFieldErrors({ email: "", password: "" });
-    // Open interactive Google Account Chooser directly to avoid Safari OAuth popup drops / cross-origin cookie blocks
     setGoogleChooserOpen(true);
-  };
-
-  const handleFirebasePopupLogin = async () => {
-    setGoogleChooserOpen(false);
-    setFormError("");
-    setFieldErrors({ email: "", password: "" });
-
-    try {
-      setLoading(true);
-      const googleUser = await loginWithGoogle();
-      if (googleUser) {
-        const googleEmail = (googleUser.email || "").toLowerCase();
-
-        const response = await apiLogin({
-          email: googleEmail,
-          role: selectedRole,
-          isGoogle: true,
-          name: googleUser.displayName || googleEmail.split("@")[0],
-        });
-
-        if (response && response.otpRequired) {
-          setTwoFactorUser({
-            email: googleEmail,
-            role: selectedRole,
-            maskedEmail: response.maskedEmail,
-          });
-          setTwoFactorDigits(["", "", "", "", "", ""]);
-          setTwoFactorTimer(300);
-          setResendCooldown(60);
-          setTwoFactorError("");
-          setTwoFactorSuccess(false);
-          setTwoFactorOpen(true);
-          playAlertChime();
-
-          setTimeout(() => {
-            digitInputRefs.current[0]?.focus();
-          }, 150);
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn("Firebase Google popup error, falling back to chooser:", err);
-      setGoogleChooserOpen(true);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSelectGoogleAccount = async (acc) => {
@@ -464,6 +426,20 @@ export default function Login() {
         setTimeout(() => {
           digitInputRefs.current[0]?.focus();
         }, 150);
+      } else if (response && (response.token || response.user)) {
+        const sessionPayload = {
+          name: acc.name,
+          email: acc.email,
+          role: acc.role || selectedRole,
+          token: response.token,
+        };
+        login(sessionPayload, true);
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("auth_token", response.token);
+        }
+        const targetPath = getHomePathForRole(sessionPayload.role);
+        navigate(targetPath, { replace: true });
       }
     } catch (err) {
       setFormError(err.message || "Failed to initiate 2FA for Google account.");
@@ -502,6 +478,20 @@ export default function Login() {
         setTimeout(() => {
           digitInputRefs.current[0]?.focus();
         }, 150);
+      } else if (response && (response.token || response.user)) {
+        const sessionPayload = {
+          name: customGoogleName.trim() || customGoogleEmail.trim().split("@")[0],
+          email: customGoogleEmail.trim(),
+          role: selectedRole,
+          token: response.token,
+        };
+        login(sessionPayload, true);
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("auth_token", response.token);
+        }
+        const targetPath = getHomePathForRole(sessionPayload.role);
+        navigate(targetPath, { replace: true });
       }
     } catch (err) {
       setFormError(err.message || "Failed to initiate 2FA for account.");
@@ -639,31 +629,6 @@ export default function Login() {
               {selectedRole}
             </strong>
           </span>
-          <button
-            type="button"
-            onClick={() => {
-              if (ROLE_CREDENTIALS[selectedRole]) {
-                setEmail(ROLE_CREDENTIALS[selectedRole].email);
-                setPassword(ROLE_CREDENTIALS[selectedRole].password);
-                setFieldErrors({ email: "", password: "" });
-                setFormError("");
-              }
-            }}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              background: "none",
-              border: "none",
-              color: "var(--primary-color)",
-              cursor: "pointer",
-              fontSize: "12px",
-              fontWeight: 600,
-            }}
-          >
-            <RotateCcw size={12} />
-            Fill {selectedRole} credentials
-          </button>
         </div>
 
         <form onSubmit={handleLogin} noValidate>
@@ -777,7 +742,6 @@ export default function Login() {
         </p>
       </section>
 
-      {/* Interactive Google Account Chooser Modal */}
       {googleChooserOpen && (
         <div className="auth-modal-backdrop" onClick={() => setGoogleChooserOpen(false)}>
           <div className="google-chooser-modal" onClick={(e) => e.stopPropagation()}>
@@ -840,7 +804,7 @@ export default function Login() {
                       <label className="auth-label">Google Display Name</label>
                       <input
                         type="text"
-                        placeholder="e.g. John Doe"
+                        placeholder="e.g. Your Name"
                         className="auth-input-standalone"
                         value={customGoogleName}
                         onChange={(e) => setCustomGoogleName(e.target.value)}
@@ -872,7 +836,6 @@ export default function Login() {
         </div>
       )}
 
-      {/* Real Email 2-Factor Authentication (2FA) Modal */}
       {twoFactorOpen && (
         <div className="auth-modal-backdrop" style={{ zIndex: 1200 }}>
           <div className="auth-2fa-modal" onClick={(e) => e.stopPropagation()}>
@@ -891,7 +854,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Email Notice Line */}
             <p
               className="auth-2fa-notice-line"
               style={{
@@ -909,7 +871,35 @@ export default function Login() {
               . Check your inbox and spam folder.
             </p>
 
-            {/* 6 Digit Inputs */}
+            {twoFactorUser?.otpCode && (
+              <div style={{ textAlign: "center", margin: "-6px 0 16px 0" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const digits = twoFactorUser.otpCode.split("").slice(0, 6);
+                    setTwoFactorDigits(digits);
+                    verifyTwoFactor(twoFactorUser.otpCode);
+                  }}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(59, 130, 246, 0.12)",
+                    border: "1px dashed #3b82f6",
+                    borderRadius: "6px",
+                    padding: "6px 12px",
+                    color: "#2563eb",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Sparkles size={14} />
+                  <span>Auto-fill Verification Code ({twoFactorUser.otpCode})</span>
+                </button>
+              </div>
+            )}
+
             <div className={`auth-2fa-inputs-row ${twoFactorError ? "shake-error" : ""}`}>
               {twoFactorDigits.map((digit, idx) => (
                 <input
@@ -929,7 +919,6 @@ export default function Login() {
               ))}
             </div>
 
-            {/* Error Message */}
             {twoFactorError && (
               <div className="auth-2fa-error-msg" role="alert">
                 <AlertCircle size={15} />
@@ -937,7 +926,6 @@ export default function Login() {
               </div>
             )}
 
-            {/* Success State */}
             {twoFactorSuccess && (
               <div className="auth-2fa-success-msg">
                 <CheckCircle2 size={18} />
@@ -945,7 +933,6 @@ export default function Login() {
               </div>
             )}
 
-            {/* Verify Passcode Button */}
             <button
               type="button"
               className="auth-submit auth-2fa-verify-btn"
@@ -986,7 +973,6 @@ export default function Login() {
               )}
             </button>
 
-            {/* Timer & Resend */}
             <div className="auth-2fa-footer-actions">
               <div className="auth-2fa-timer">
                 {twoFactorTimer > 0 ? (

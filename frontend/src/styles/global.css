@@ -1,7 +1,7 @@
 @import "./themes.css";
 
 body {
-  min-width: 320px;
+min-width: 320px;
 }
 
 button,
@@ -9,7 +9,7 @@ a,
 input,
 select,
 textarea {
-  outline-offset: 3px;
+outline-offset: 3px;
 }
 
 button:focus-visible,
@@ -17,48 +17,48 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--accent-color);
+outline: 2px solid var(--accent-color);
 }
 
 .page-container {
-  width: min(1200px, 92%);
-  margin: 0 auto;
+width: min(1200px, 92%);
+margin: 0 auto;
 }
 
 .section-title {
-  color: var(--text-primary);
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
-  font-weight: 750;
+color: var(--text-primary);
+font-size: clamp(1.6rem, 3vw, 2.3rem);
+font-weight: 750;
 }
 
 .muted-text {
-  color: var(--text-secondary);
+color: var(--text-secondary);
 }
 
 .theme-card {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
+background: var(--bg-card);
+color: var(--text-primary);
+border: 1px solid var(--border-color);
+border-radius: 16px;
+box-shadow: var(--shadow);
 }
 
 .primary-button {
-  background: var(--primary-color);
-  color: #ffffff;
-  border: none;
-  border-radius: 9px;
-  padding: 11px 20px;
-  font-weight: 600;
-  cursor: pointer;
+background: var(--primary-color);
+color: #ffffff;
+border: none;
+border-radius: 9px;
+padding: 11px 20px;
+font-weight: 600;
+cursor: pointer;
 }
 
 .primary-button:hover {
-  background: var(--primary-hover);
+background: var(--primary-hover);
 }
 
 @media (max-width: 768px) {
-  .page-container {
-    width: 94%;
-  }
+.page-container {
+width: 94%;
+}
 }

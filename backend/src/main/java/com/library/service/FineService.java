@@ -2,7 +2,6 @@ package com.library.service;
 
 import com.library.dto.PaymentRequest;
 import com.library.entity.Fine;
-import com.library.entity.LibrarySetting;
 import com.library.entity.Loan;
 import com.library.entity.Notice;
 import com.library.exception.BadRequest;
@@ -56,7 +55,7 @@ public class FineService {
 
     long graceDays = getSettingLong("grace_period_days", 1L);
     if (daysOverdue <= graceDays) {
-      return null; // Within grace period
+      return null;
     }
 
     BigDecimal fineRate = getSettingBigDecimal("fine_rate_per_day", new BigDecimal("5.00"));
@@ -67,12 +66,10 @@ public class FineService {
       calculatedAmount = maxFine;
     }
 
-    // Check if fine already exists for this loan
     Optional<Fine> existingOpt = fineRepo.findByLoanId(loan.getId());
     Fine fine;
     if (existingOpt.isPresent()) {
       fine = existingOpt.get();
-      // If already paid, do not modify amount
       if (fine.getStatus() == Fine.Status.PAID) {
         return fine;
       }

@@ -1,0 +1,668 @@
+.library-reports-page {
+  width: 100%;
+  min-width: 0;
+  padding: 28px;
+  color: var(--text-primary);
+}
+
+.library-reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.library-reports-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.library-reports-header h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(27px, 3vw, 34px);
+  font-weight: 800;
+}
+
+.library-reports-header p {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.library-export-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-shrink: 0;
+  padding: 12px 17px;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.library-export-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.library-reports-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 14px;
+}
+
+.library-reports-notice span {
+  flex: 1;
+}
+
+.library-reports-notice button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.library-report-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 17px;
+  margin-bottom: 24px;
+}
+
+.library-report-stat {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+}
+
+.library-report-stat-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.library-report-stat-icon.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.library-report-stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.library-report-stat-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.library-report-stat-icon.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.library-report-stat > div:last-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.library-report-stat span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.library-report-stat strong {
+  color: var(--text-primary);
+  font-size: 25px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.library-report-stat small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.library-report-filters,
+.library-report-summary-card,
+.library-popular-books-card,
+.library-report-records-card {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+}
+
+.library-report-filters {
+  margin-bottom: 24px;
+  padding: 22px 24px;
+}
+
+.library-report-filter-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.library-report-filter-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.library-report-filter-heading h2 svg {
+  color: var(--primary-color);
+}
+
+.library-report-filter-heading p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.library-reset-button {
+  padding: 9px 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.library-filter-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 15px;
+}
+
+.library-filter-controls > label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.library-filter-controls > label > input {
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  padding: 0 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  outline: none;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.library-filter-controls input:focus {
+  border-color: var(--primary-color);
+}
+
+.library-report-search > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-secondary);
+}
+
+.library-report-search > div svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.library-report-search > div input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+
+.library-report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.library-report-summary-card {
+  padding: 22px 24px;
+}
+
+.library-summary-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.library-summary-heading svg {
+  color: var(--primary-color);
+}
+
+.library-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 13px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.library-summary-row span {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.library-summary-row strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.library-danger-text {
+  color: #dc2626 !important;
+}
+
+.library-success-text {
+  color: #16a34a !important;
+}
+
+.library-popular-books-card {
+  margin-bottom: 24px;
+  padding: 22px 24px;
+}
+
+.library-popular-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 19px;
+}
+
+.library-popular-heading h2 svg {
+  color: var(--primary-color);
+}
+
+.library-popular-heading p {
+  margin: 7px 0 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.library-popular-list {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.library-popular-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.library-popular-rank {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.library-popular-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-popular-details strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.library-popular-progress {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+}
+
+.library-popular-progress > div {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.library-popular-count {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.library-report-records-card {
+  overflow: hidden;
+}
+
+.library-report-records-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 22px 24px;
+}
+
+.library-report-records-heading h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 19px;
+}
+
+.library-report-records-heading p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.library-report-records-heading > span {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.library-report-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.library-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.library-report-table th {
+  padding: 14px 17px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.library-report-table td {
+  padding: 15px 17px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 12px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.library-report-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.library-report-table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.library-report-book-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 240px;
+  white-space: normal;
+}
+
+.library-report-book-cell svg {
+  flex-shrink: 0;
+  color: var(--primary-color);
+}
+
+.library-report-book-cell span {
+  line-height: 1.5;
+}
+
+.library-report-student-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.library-report-student-cell strong {
+  font-size: 12px;
+}
+
+.library-report-student-cell span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.library-report-status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.library-report-status.issued {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.library-report-status.returned {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.library-report-status.pending {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.library-report-empty {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.library-report-empty svg {
+  color: var(--primary-color);
+}
+
+.library-report-empty h3 {
+  margin: 13px 0 5px;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.library-report-empty p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.library-report-bottom-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 15px 24px 20px;
+  padding: 12px;
+  border-radius: 9px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.library-report-bottom-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #ea580c;
+}
+
+@media (max-width: 1200px) {
+  .library-report-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-report-table {
+    min-width: 850px;
+  }
+}
+
+@media (max-width: 800px) {
+  .library-reports-page {
+    padding: 20px;
+  }
+
+  .library-filter-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-report-search {
+    grid-column: 1 / -1;
+  }
+
+  .library-report-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 550px) {
+  .library-reports-page {
+    padding: 15px;
+  }
+
+  .library-reports-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .library-export-button {
+    width: 100%;
+  }
+
+  .library-report-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .library-report-stat {
+    padding: 16px;
+  }
+
+  .library-report-filters,
+  .library-report-summary-card,
+  .library-popular-books-card {
+    padding: 17px;
+  }
+
+  .library-report-filter-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .library-filter-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .library-report-search {
+    grid-column: auto;
+  }
+
+  .library-report-records-heading {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .library-report-records-heading h2 {
+    font-size: 17px;
+  }
+
+  .library-report-bottom-note {
+    margin: 12px 18px 18px;
+  }
+}

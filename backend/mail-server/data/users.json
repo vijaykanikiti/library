@@ -40,13 +40,5 @@
     "email": "ckrishna2354@gmail.com",
     "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
     "role": "admin"
-  },
-  {
-    "id": 7,
-    "name": "Gopal Krishna",
-    "email": "admin@libraspace.com",
-    "password": "$2a$10$79oTkZx2nT9DMam8s.i0gO73wRccWXJaGHRB.fjckrQFnyFZbjvwe",
-    "role": "admin",
-    "sendToEmail": "gopalkrishnagopal6363@gmail.com"
   }
 ]

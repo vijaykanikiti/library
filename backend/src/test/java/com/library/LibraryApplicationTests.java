@@ -10,9 +10,7 @@ import com.library.service.FineService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,10 +58,8 @@ class LibraryApplicationTests {
     loan.setBook(book);
     loan.setUser(user);
     loan.setIssueDate(LocalDateTime.now().minusDays(20));
-    loan.setDueDate(LocalDateTime.now().minusDays(6)); // 6 days overdue
+    loan.setDueDate(LocalDateTime.now().minusDays(6));
 
-    // Grace period is 1 day, so overdue days = 6 > grace period 1 day
-    // Overdue check for fine
     LocalDateTime now = LocalDateTime.now();
     assertTrue(loan.getDueDate().isBefore(now));
   }

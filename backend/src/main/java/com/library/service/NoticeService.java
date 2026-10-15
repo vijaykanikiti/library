@@ -28,15 +28,13 @@ public class NoticeService {
     Notice notice = new Notice(user, title, message, type);
     Notice saved = noticeRepo.save(notice);
 
-    // Push via WebSocket STOMP to user-specific queue
     try {
       messagingTemplate.convertAndSendToUser(
           user.getEmail(),
           "/queue/notices",
           saved
       );
-    } catch (Exception e) {
-      // Non-blocking WebSocket delivery
+    } catch (Exception ignored) {
     }
 
     return saved;

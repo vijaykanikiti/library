@@ -8,7 +8,6 @@ import com.library.exception.NotFound;
 import com.library.repository.OtpChallengeRepo;
 import com.library.repository.UserRepo;
 import com.library.security.JwtService;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,7 +81,6 @@ public class AuthService {
     user.setEmail(email);
     user.setPassword(passwordEncoder.encode(req.getPassword()));
     user.setPhone(req.getPhone() != null ? req.getPhone().trim() : null);
-    // Force STUDENT role for public registration
     user.setRole(User.Role.STUDENT);
     user.setActive(true);
 
@@ -109,13 +107,11 @@ public class AuthService {
       throw new BadCredentialsException("Invalid email or password");
     }
 
-    // If real SMTP credentials are provided, enforce 2FA OTP verification
     if (smtpUser != null && !smtpUser.isBlank() && !smtpUser.contains("your-email")) {
       generateAndSendOtp(email);
       return new AuthResponse("Password verified. A 6-digit verification OTP has been sent to your email.", true, email);
     }
 
-    // Direct authentication when SMTP is not configured
     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
     String token = jwtService.generateToken(userDetails, user.getId(), user.getRole().name());
     return new AuthResponse(token, UserDto.fromEntity(user), "Login successful.");
@@ -131,7 +127,6 @@ public class AuthService {
       throw new BadRequest("Account is deactivated.");
     }
 
-    // Check cooldown against previous challenge
     otpChallengeRepo.findFirstByEmailOrderByCreatedAtDesc(email).ifPresent(lastChallenge -> {
       long secondsSince = ChronoUnit.SECONDS.between(lastChallenge.getCreatedAt(), LocalDateTime.now());
       if (secondsSince < resendCooldownSeconds) {
@@ -153,7 +148,6 @@ public class AuthService {
     OtpChallenge challenge = new OtpChallenge(email, otpHash, expiry);
     otpChallengeRepo.save(challenge);
 
-    // Send email
     mailService.sendOtpEmail(email, otpString);
   }
 
@@ -188,11 +182,9 @@ public class AuthService {
       throw new BadRequest("Incorrect OTP code. " + (remaining > 0 ? remaining + " attempts remaining." : "Please request a new code."));
     }
 
-    // OTP verified successfully
     challenge.setVerified(true);
     otpChallengeRepo.save(challenge);
 
-    // Issue JWT token
     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
     String token = jwtService.generateToken(userDetails, user.getId(), user.getRole().name());
 

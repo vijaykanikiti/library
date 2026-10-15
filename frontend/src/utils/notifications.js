@@ -1,19 +1,8 @@
-/**
- * LibraSpace Notification System
- * Storage key: "libraspace-notifications"
- * Max: 50 items
- * Real-time: storage events & BroadcastChannel("libraspace")
- * Safari on macOS compatible
- */
 
 export const NOTIFICATIONS_KEY = "libraspace-notifications";
 export const BROADCAST_CHANNEL_NAME = "libraspace";
 export const LOCAL_NOTIF_EVENT = "libraspace-notification-event";
 
-/**
- * Safe helper to read notifications from localStorage.
- * Always returns an array (max 50, falls back to [] on any error).
- */
 export function getNotifications() {
   try {
     const raw = localStorage.getItem(NOTIFICATIONS_KEY);
@@ -27,36 +16,24 @@ export function getNotifications() {
   }
 }
 
-/**
- * Filter notifications for a specific user based on targeting rules:
- * - toRole "all" goes to everyone
- * - otherwise toRole and toEmail must match the logged-in user
- * - The person who did the action must not get their own notification
- */
 export function isNotificationForUser(notif, user) {
   if (!user || !notif) return false;
 
   const userRole = (user.role || "").toLowerCase().trim();
   const userEmail = (user.email || "").toLowerCase().trim();
   const fromEmail = (notif.fromEmail || "").toLowerCase().trim();
-
-  // The person who performed the action must NOT receive their own notification
   if (fromEmail && userEmail && fromEmail === userEmail) {
     return false;
   }
 
   const toRole = (notif.toRole || "all").toLowerCase().trim();
   const toEmail = (notif.toEmail || "all").toLowerCase().trim();
-
-  // toRole "all" goes to everyone
   if (toRole === "all") {
     if (toEmail !== "all" && toEmail !== "") {
       return toEmail === userEmail;
     }
     return true;
   }
-
-  // otherwise toRole and toEmail must match the logged-in user
   if (toRole !== userRole) {
     return false;
   }
@@ -68,9 +45,6 @@ export function isNotificationForUser(notif, user) {
   return true;
 }
 
-/**
- * Safely broadcast a message via BroadcastChannel if supported.
- */
 function broadcast(message) {
   if (typeof BroadcastChannel !== "undefined") {
     try {
@@ -82,14 +56,10 @@ function broadcast(message) {
         } catch (_) {}
       }, 100);
     } catch (_) {
-      // Ignore if BroadcastChannel is blocked or fails
     }
   }
 }
 
-/**
- * Safely dispatch a local custom event so current tab updates immediately.
- */
 function dispatchLocal(detail) {
   if (typeof window !== "undefined") {
     try {
@@ -98,10 +68,6 @@ function dispatchLocal(detail) {
   }
 }
 
-/**
- * Add a notification to storage (keeps latest 50 items).
- * Schema: { id, title, body, type, toRole, toEmail, time, read } + fromEmail & message
- */
 export function addNotification(notification) {
   if (!notification) return null;
 
@@ -121,13 +87,9 @@ export function addNotification(notification) {
       read: Boolean(notification.read),
       timestamp: notification.timestamp || Date.now(),
     };
-
-    // Prepend new notification and cap at latest 50
     const updated = [notifItem, ...current].slice(0, 50);
 
     localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
-
-    // Real-time notification: BroadcastChannel for other tabs & local CustomEvent for current tab
     broadcast({ type: "NOTIFICATION_ADDED", notification: notifItem, all: updated });
     dispatchLocal({ type: "NOTIFICATION_ADDED", notification: notifItem, all: updated });
 
@@ -138,10 +100,6 @@ export function addNotification(notification) {
   }
 }
 
-/**
- * Mark notifications as read.
- * If user is passed, marks only their targeted notifications; otherwise marks all.
- */
 export function markAllRead(user = null) {
   try {
     const current = getNotifications();
@@ -164,10 +122,6 @@ export function markAllRead(user = null) {
   }
 }
 
-/**
- * Clear notifications.
- * If user is passed, clears notifications meant for them; otherwise clears all.
- */
 export function clearAll(user = null) {
   try {
     let updated = [];
@@ -188,9 +142,6 @@ export function clearAll(user = null) {
   }
 }
 
-/**
- * Helper to mark a single notification as read by ID.
- */
 export function markAsRead(id) {
   try {
     const current = getNotifications();
@@ -207,9 +158,6 @@ export function markAsRead(id) {
   }
 }
 
-/**
- * Helper to delete a single notification by ID.
- */
 export function deleteNotification(id) {
   try {
     const current = getNotifications();
@@ -226,10 +174,6 @@ export function deleteNotification(id) {
   }
 }
 
-/**
- * Request notification permission on user gesture (click in Safari).
- * Never called on page load.
- */
 export async function requestNotificationPermission() {
   if (typeof window === "undefined" || !("Notification" in window)) {
     return "unsupported";
@@ -239,8 +183,6 @@ export async function requestNotificationPermission() {
     if (Notification.permission === "granted") {
       return "granted";
     }
-
-    // Modern browsers return a Promise; older Safari may use callback
     let permission = Notification.permission;
     if (typeof Notification.requestPermission === "function") {
       const res = Notification.requestPermission();
@@ -257,9 +199,6 @@ export async function requestNotificationPermission() {
   }
 }
 
-/**
- * Show a system notification if granted, otherwise returns false so caller can show in-app toast.
- */
 export function showSystemNotification(title, options = {}) {
   if (typeof window === "undefined" || !("Notification" in window)) {
     return false;

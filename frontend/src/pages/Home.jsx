@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { booksApi } from "../services/api";
+
 import {
   ArrowRight,
   Search,
@@ -19,11 +19,9 @@ import {
   ShieldCheck,
   CalendarCheck,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
-import { SocialLinksRow } from "../components/SocialLinks";
-import "../styles/home.css";
 
-const currentYear = new Date().getFullYear();
+import Navbar from "../components/Navbar";
+import "../styles/home.css";
 
 const categories = [
   {
@@ -64,108 +62,92 @@ const categories = [
   },
 ];
 
-const books = [
-  {
-    id: 1,
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    category: "Technology",
-    rating: 4.8,
-    color: "#dce8db",
-    symbol: "</>",
-    available: true,
-  },
-  {
-    id: 2,
-    title: "Atomic Habits",
-    author: "James Clear",
-    category: "Personal Growth",
-    rating: 4.9,
-    color: "#f5e2cb",
-    symbol: "A",
-    available: true,
-  },
-  {
-    id: 3,
-    title: "The Alchemist",
-    author: "Paulo Coelho",
-    category: "Literature",
-    rating: 4.7,
-    color: "#e7dff6",
-    symbol: "✦",
-    available: false,
-  },
-  {
-    id: 4,
-    title: "A Brief History of Time",
-    author: "Stephen Hawking",
-    category: "Science",
-    rating: 4.8,
-    color: "#dceaf7",
-    symbol: "∞",
-    available: true,
-  },
-];
+const initialBooks = [];
 
 const features = [
   {
     icon: Search,
     title: "Easy Book Discovery",
-    description: "Find books by title, author, ISBN or category with convenient search.",
+    description:
+      "Find books by title, author, ISBN or category with convenient search.",
   },
   {
     icon: CalendarCheck,
     title: "Smart Borrowing",
-    description: "Keep track of issue dates, due dates, reservations and renewals.",
+    description:
+      "Keep track of issue dates, due dates, reservations and renewals.",
   },
   {
     icon: ShieldCheck,
     title: "Personal Library",
-    description: "Access your borrowing history and manage your library profile.",
+    description:
+      "Access your borrowing history and manage your library profile.",
   },
 ];
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [bookList, setBookList] = useState(books);
 
-  useEffect(() => {
-    booksApi
-      .getAll()
-      .then((data) => {
-        const fetched = data?.content || data;
-        if (Array.isArray(fetched) && fetched.length > 0) {
-          const mapped = fetched.map((b, idx) => ({
-            id: b.id,
+  const [books] = useState(() => {
+    try {
+      const saved = localStorage.getItem("libraspace_books");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((b, idx) => ({
+            id: b.id || idx + 1,
             title: b.title,
             author: b.author,
             category: b.category,
-            rating: b.rating || 4.8,
-            color: ["#dce8db", "#f5e2cb", "#e7dff6", "#dceaf7"][idx % 4],
-            symbol: b.title.charAt(0),
-            available: b.availableCopies > 0,
+            rating: 4.8,
+            color: idx % 3 === 0 ? "#dce8db" : idx % 3 === 1 ? "#f5e2cb" : "#e7dff6",
+            symbol: b.title ? b.title[0] : "✦",
+            available: b.availableCopies !== undefined ? b.availableCopies > 0 : true,
           }));
-          setBookList(mapped);
         }
-      })
-      .catch(() => {});
-  }, []);
+      }
+    } catch {}
+    return initialBooks;
+  });
+
+  const [stats] = useState(() => {
+    let booksCount = 0;
+    let membersCount = 0;
+    try {
+      const b = JSON.parse(localStorage.getItem("libraspace_books") || "[]");
+      if (Array.isArray(b)) booksCount = b.length;
+    } catch {}
+    try {
+      const s = JSON.parse(localStorage.getItem("libraspace_students") || "[]");
+      const u = JSON.parse(localStorage.getItem("users") || "[]");
+      membersCount = Math.max(Array.isArray(s) ? s.length : 0, Array.isArray(u) ? u.length : 0);
+    } catch {}
+    return {
+      books: booksCount > 0 ? `${booksCount}+` : "0",
+      members: membersCount > 0 ? `${membersCount}+` : "0",
+    };
+  });
 
   const filteredBooks = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    if (!query) return bookList;
-    return bookList.filter((book) =>
-      [book.title, book.author, book.category].some((value) =>
-        value.toLowerCase().includes(query)
-      )
+
+    if (!query) return books;
+
+    return books.filter((book) =>
+      [
+        book.title,
+        book.author,
+        book.category,
+      ].some((value) => value.toLowerCase().includes(query))
     );
-  }, [searchTerm, bookList]);
+  }, [searchTerm]);
 
   return (
     <>
       <Navbar />
 
       <main>
+        {/* HERO SECTION */}
         <section className="hero-section">
           <div className="hero-container">
             <div className="hero-content">
@@ -181,8 +163,9 @@ export default function Home() {
               </h1>
 
               <p>
-                Explore knowledge, discover new ideas and manage your borrowing
-                experience in one simple library platform.
+                Explore knowledge, discover new ideas and manage
+                your borrowing experience in one simple library
+                platform.
               </p>
 
               <div className="hero-buttons">
@@ -190,6 +173,7 @@ export default function Home() {
                   Get Started
                   <ArrowRight size={19} />
                 </Link>
+
                 <a href="#featured" className="hero-secondary">
                   <BookOpen size={19} />
                   Explore Books
@@ -200,6 +184,7 @@ export default function Home() {
                 <div className="trust-icon">
                   <Users size={20} />
                 </div>
+
                 <div>
                   <strong>Knowledge for everyone</strong>
                   <span>Discover. Read. Grow.</span>
@@ -221,7 +206,9 @@ export default function Home() {
                     <br />
                     OF LEARNING
                   </div>
-                  <div className="book-cover-subtitle">A WORLD OF KNOWLEDGE</div>
+                  <div className="book-cover-subtitle">
+                    A WORLD OF KNOWLEDGE
+                  </div>
                 </div>
 
                 <div className="hero-book hero-book-two">
@@ -231,7 +218,9 @@ export default function Home() {
                     <br />
                     THE UNIVERSE
                   </div>
-                  <div className="book-cover-subtitle">SCIENCE & DISCOVERY</div>
+                  <div className="book-cover-subtitle">
+                    SCIENCE & DISCOVERY
+                  </div>
                 </div>
 
                 <div className="hero-book hero-book-three">
@@ -241,7 +230,9 @@ export default function Home() {
                     <br />
                     THAT INSPIRE
                   </div>
-                  <div className="book-cover-subtitle">IMAGINATION HAS NO LIMITS</div>
+                  <div className="book-cover-subtitle">
+                    IMAGINATION HAS NO LIMITS
+                  </div>
                 </div>
               </div>
 
@@ -253,12 +244,13 @@ export default function Home() {
           </div>
         </section>
 
+        {/* STATISTICS */}
         <section className="stats-section">
           <div className="stats-container">
             <div className="stat-item">
               <LibraryBig size={27} />
               <div>
-                <h3>1,000+</h3>
+                <h3>{stats.books}</h3>
                 <p>Book Collection</p>
               </div>
             </div>
@@ -266,7 +258,7 @@ export default function Home() {
             <div className="stat-item">
               <Users size={27} />
               <div>
-                <h3>500+</h3>
+                <h3>{stats.members}</h3>
                 <p>Library Members</p>
               </div>
             </div>
@@ -274,7 +266,7 @@ export default function Home() {
             <div className="stat-item">
               <BookOpen size={27} />
               <div>
-                <h3>25+</h3>
+                <h3>6+</h3>
                 <p>Book Categories</p>
               </div>
             </div>
@@ -289,13 +281,22 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CATEGORIES */}
         <section className="home-section" id="categories">
           <div className="section-heading">
             <div>
-              <span className="section-eyebrow">EXPLORE YOUR INTERESTS</span>
+              <span className="section-eyebrow">
+                EXPLORE YOUR INTERESTS
+              </span>
+
               <h2>Browse by category</h2>
-              <p>Find your next great read from our curated collection of subjects.</p>
+
+              <p>
+                Find your next great read from our curated
+                collection of subjects.
+              </p>
             </div>
+
             <a href="#featured" className="text-link">
               Explore collection
               <ArrowRight size={17} />
@@ -305,6 +306,7 @@ export default function Home() {
           <div className="category-grid">
             {categories.map((category) => {
               const Icon = category.icon;
+
               return (
                 <button
                   type="button"
@@ -312,35 +314,51 @@ export default function Home() {
                   className="category-card"
                   onClick={() => {
                     setSearchTerm(category.name);
-                    document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" });
+
+                    document
+                      .getElementById("featured")
+                      ?.scrollIntoView({ behavior: "smooth" });
                   }}
                 >
                   <div className="category-icon">
                     <Icon size={26} />
                   </div>
+
                   <div className="category-information">
                     <h3>{category.name}</h3>
                     <p>{category.description}</p>
                     <span>{category.count} books</span>
                   </div>
-                  <ArrowRight size={18} className="category-arrow" />
+
+                  <ArrowRight
+                    size={18}
+                    className="category-arrow"
+                  />
                 </button>
               );
             })}
           </div>
         </section>
 
+        {/* FEATURED BOOKS */}
         <section className="home-section featured-section" id="featured">
           <div className="section-heading">
             <div>
-              <span className="section-eyebrow">FIND YOUR NEXT READ</span>
+              <span className="section-eyebrow">
+                FIND YOUR NEXT READ
+              </span>
+
               <h2>Featured books</h2>
-              <p>Discover popular selections from our library collection.</p>
+
+              <p>
+                Discover popular selections from our library collection.
+              </p>
             </div>
           </div>
 
           <div className="book-search">
             <Search size={21} />
+
             <input
               type="search"
               placeholder="Search by title, author or category..."
@@ -348,8 +366,12 @@ export default function Home() {
               onChange={(event) => setSearchTerm(event.target.value)}
               aria-label="Search featured books"
             />
+
             {searchTerm && (
-              <button type="button" onClick={() => setSearchTerm("")}>
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+              >
                 Clear
               </button>
             )}
@@ -359,29 +381,53 @@ export default function Home() {
             {filteredBooks.length > 0 ? (
               filteredBooks.map((book) => (
                 <article className="book-card" key={book.id}>
-                  <div className="book-art" style={{ "--book-color": book.color }}>
+                  <div
+                    className="book-art"
+                    style={{ "--book-color": book.color }}
+                  >
                     <div className="book-art-inner">
-                      <span className="book-art-symbol">{book.symbol}</span>
+                      <span className="book-art-symbol">
+                        {book.symbol}
+                      </span>
+
                       <h3>{book.title}</h3>
-                      <span className="book-art-author">{book.author}</span>
+
+                      <span className="book-art-author">
+                        {book.author}
+                      </span>
                     </div>
                   </div>
 
                   <div className="book-card-content">
-                    <span className="book-category">{book.category}</span>
+                    <span className="book-category">
+                      {book.category}
+                    </span>
+
                     <h3>{book.title}</h3>
+
                     <p>by {book.author}</p>
+
                     <div className="book-card-bottom">
                       <span className="book-rating">
                         <Star size={15} fill="currentColor" />
                         {book.rating}
                       </span>
-                      <span className={`availability ${book.available ? "available" : "unavailable"}`}>
-                        {book.available ? "Available" : "Currently issued"}
+
+                      <span
+                        className={`availability ${
+                          book.available ? "available" : "unavailable"
+                        }`}
+                      >
+                        {book.available
+                          ? "Available"
+                          : "Currently issued"}
                       </span>
                     </div>
 
-                    <Link to="/login" className="book-action">
+                    <Link
+                      to="/login"
+                      className="book-action"
+                    >
                       View Details
                       <ArrowRight size={16} />
                     </Link>
@@ -391,8 +437,12 @@ export default function Home() {
             ) : (
               <div className="empty-books">
                 <BookOpen size={35} />
+
                 <h3>No matching books found</h3>
-                <p>Try another title, author or category.</p>
+
+                <p>
+                  Try another title, author or category.
+                </p>
               </div>
             )}
           </div>
@@ -405,22 +455,33 @@ export default function Home() {
           </div>
         </section>
 
+        {/* FEATURES */}
         <section className="home-section features-section" id="about">
           <div className="features-heading">
-            <span className="section-eyebrow">THE LIBRARY EXPERIENCE</span>
+            <span className="section-eyebrow">
+              THE LIBRARY EXPERIENCE
+            </span>
+
             <h2>Everything you need in one place</h2>
-            <p>Simple tools to help students and librarians manage everyday library activities.</p>
+
+            <p>
+              Simple tools to help students and librarians
+              manage everyday library activities.
+            </p>
           </div>
 
           <div className="features-grid">
             {features.map((feature) => {
               const Icon = feature.icon;
+
               return (
                 <article className="feature-card" key={feature.title}>
                   <div className="feature-icon">
                     <Icon size={27} />
                   </div>
+
                   <h3>{feature.title}</h3>
+
                   <p>{feature.description}</p>
                 </article>
               );
@@ -428,11 +489,18 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CALL TO ACTION */}
         <section className="cta-section">
           <div className="cta-content">
             <span>YOUR NEXT CHAPTER STARTS HERE</span>
+
             <h2>Ready to explore a world of knowledge?</h2>
-            <p>Create your account and begin discovering books that inspire your next big idea.</p>
+
+            <p>
+              Create your account and begin discovering books
+              that inspire your next big idea.
+            </p>
+
             <Link to="/register" className="cta-button">
               Join LibraSpace
               <ArrowRight size={19} />
@@ -441,6 +509,7 @@ export default function Home() {
         </section>
       </main>
 
+      {/* FOOTER */}
       <footer className="library-footer">
         <div className="footer-container">
           <div className="footer-brand">
@@ -448,27 +517,79 @@ export default function Home() {
               <span className="brand-icon">
                 <LibraryBig size={25} />
               </span>
+
               <span>
                 <strong>LibraSpace</strong>
                 <small>Your world of knowledge</small>
               </span>
             </Link>
-            <p>Connecting readers with knowledge through a simple and accessible library experience.</p>
-            <div className="footer-social-wrapper" style={{ marginTop: "20px" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.8px",
-                  color: "var(--text-secondary)",
-                  display: "block",
-                  marginBottom: "12px",
-                }}
+
+            <p>
+              Connecting readers with knowledge through a
+              simple and accessible library experience.
+            </p>
+
+            <div className="footer-social-links" aria-label="Social media channels">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="GitHub"
+                aria-label="Follow LibraSpace on GitHub"
               >
-                Follow LibraSpace
-              </span>
-              <SocialLinksRow size="sm" />
+                <i className="bi bi-github"></i>
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="LinkedIn"
+                aria-label="Connect with LibraSpace on LinkedIn"
+              >
+                <i className="bi bi-linkedin"></i>
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="Twitter / X"
+                aria-label="Follow LibraSpace on Twitter / X"
+              >
+                <i className="bi bi-twitter-x"></i>
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="Instagram"
+                aria-label="Follow LibraSpace on Instagram"
+              >
+                <i className="bi bi-instagram"></i>
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="YouTube"
+                aria-label="Subscribe to LibraSpace on YouTube"
+              >
+                <i className="bi bi-youtube"></i>
+              </a>
+              <a
+                href="https://discord.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-btn"
+                title="Discord"
+                aria-label="Join LibraSpace on Discord"
+              >
+                <i className="bi bi-discord"></i>
+              </a>
             </div>
           </div>
 
@@ -489,14 +610,46 @@ export default function Home() {
           <div className="footer-column">
             <h3>Information</h3>
             <a href="#about">About Us</a>
-            <a href="mailto:library@example.com">Contact</a>
+            <a href="mailto:gopalkrishnagopal6363@gmail.com">Contact Support</a>
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-and-conditions">Terms & Conditions</Link>
+          </div>
+
+          <div className="footer-column">
+            <h3>Community</h3>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-github"></i> GitHub Code
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-linkedin"></i> LinkedIn
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-twitter-x"></i> Twitter / X
+            </a>
+            <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-discord"></i> Discord Community
+            </a>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© {currentYear} LibraSpace. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} LibraSpace. All rights
+            reserved.
+          </p>
+
+          <div className="footer-bottom-social">
+            <span>Connect with us:</span>
+            <div className="footer-bottom-icons">
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i className="bi bi-github"></i></a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i className="bi bi-linkedin"></i></a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i className="bi bi-twitter-x"></i></a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i className="bi bi-instagram"></i></a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i className="bi bi-youtube"></i></a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer" aria-label="Discord"><i className="bi bi-discord"></i></a>
+            </div>
+          </div>
+
           <p>Built for readers, learners and knowledge seekers.</p>
         </div>
       </footer>

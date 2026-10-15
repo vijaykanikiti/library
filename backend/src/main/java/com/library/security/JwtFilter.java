@@ -59,7 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
         }
       }
     } catch (Exception e) {
-      // Invalid or expired token, proceed without setting authentication
       logger.warn("JWT validation failed: " + e.getMessage());
     }
 

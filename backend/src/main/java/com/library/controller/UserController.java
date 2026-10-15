@@ -56,7 +56,6 @@ public class UserController {
   @GetMapping("/{id}")
   public ResponseEntity<UserDto> getUserById(@PathVariable Long id, Authentication auth) {
     User currentUser = authService.getCurrentUser(auth.getName());
-    // Students can only access their own profile
     if (currentUser.getRole() == User.Role.STUDENT && !currentUser.getId().equals(id)) {
       throw new BadRequest("You can only access your own profile.");
     }

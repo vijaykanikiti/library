@@ -57,15 +57,10 @@ public class Security {
       .cors(Customizer.withDefaults())
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(auth -> auth
-        // Public auth endpoints
         .requestMatchers("/api/auth/**").permitAll()
-        // Public book browsing for landing page
         .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
-        // WebSocket endpoint
         .requestMatchers("/ws/**").permitAll()
-        // Admin specific endpoints
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-        // Staff endpoints (Admin or Librarian)
         .requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "LIBRARIAN")
         .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole("ADMIN", "LIBRARIAN")
         .requestMatchers(HttpMethod.PUT, "/api/books/**").hasAnyRole("ADMIN", "LIBRARIAN")
@@ -73,7 +68,6 @@ public class Security {
         .requestMatchers(HttpMethod.POST, "/api/loans/issue").hasAnyRole("ADMIN", "LIBRARIAN")
         .requestMatchers(HttpMethod.POST, "/api/loans/*/return").hasAnyRole("ADMIN", "LIBRARIAN")
         .requestMatchers(HttpMethod.POST, "/api/fines/*/record-payment").hasAnyRole("ADMIN", "LIBRARIAN")
-        // All other endpoints require authentication
         .anyRequest().authenticated()
       )
       .authenticationProvider(authenticationProvider())

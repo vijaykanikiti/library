@@ -1,5 +1,10 @@
 # macOS
 .DS_Store
+**/.DS_Store
+
+# Large archives and backups
+*.zip
+*.tar.gz
 
 # Backend Maven build outputs
 backend/target/
@@ -7,9 +12,11 @@ backend/target/
 *.jar
 *.war
 
-# Frontend Node build outputs & dependencies
-frontend/node_modules/
+# Node dependencies & build outputs
+node_modules/
 **/node_modules/
+frontend/node_modules/
+backend/mail-server/node_modules/
 frontend/dist/
 frontend/dist-ssr/
 frontend/.vite/
@@ -19,8 +26,13 @@ frontend/.vite/
 *.env
 server/.env
 frontend/.env
+backend/.env
+backend/mail-server/.env
 **/application-local.properties
 backend/src/main/resources/application-local.properties
+
+# Ephemeral runtime cache
+backend/mail-server/data/otp-sessions.json
 
 # Logs
 logs/

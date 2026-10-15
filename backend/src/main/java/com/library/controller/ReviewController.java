@@ -55,7 +55,6 @@ public class ReviewController {
       @Valid @RequestBody ReviewRequest req,
       Authentication auth
   ) {
-    // Find existing review's bookId
     User user = authService.getCurrentUser(auth.getName());
     Review updated = reviewService.saveOrUpdateReview(id, user, req);
     return ResponseEntity.ok(updated);

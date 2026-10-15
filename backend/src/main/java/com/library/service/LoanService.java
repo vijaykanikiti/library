@@ -11,7 +11,6 @@ import com.library.repository.ReserveRepo;
 import com.library.repository.UserRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,7 +83,6 @@ public class LoanService {
       throw new BadRequest("Cannot issue book: Member account is deactivated.");
     }
 
-    // Check if member has an AVAILABLE reservation for this book
     Optional<Reserve> memberReserve = reserveRepo.findFirstByBookIdAndStatusOrderByQueueOrderAsc(book.getId(), Reserve.Status.AVAILABLE)
         .filter(r -> r.getUser().getId().equals(member.getId()));
 
@@ -92,19 +90,16 @@ public class LoanService {
       throw new BadRequest("No available copies of '" + book.getTitle() + "' to borrow.");
     }
 
-    // Check borrowing limit
     int loanLimit = getSettingInt("loan_limit_count", 3);
     long activeCount = loanRepo.countByUserIdAndStatusIn(member.getId(), Arrays.asList(Loan.Status.ACTIVE, Loan.Status.OVERDUE));
     if (activeCount >= loanLimit) {
       throw new BadRequest("Member has reached maximum borrowing limit of " + loanLimit + " books.");
     }
 
-    // If not fulfilling an available reservation, decrease stock
     if (memberReserve.isEmpty()) {
       book.setAvailableCopies(book.getAvailableCopies() - 1);
       bookRepo.save(book);
     } else {
-      // Complete reservation
       Reserve r = memberReserve.get();
       r.setStatus(Reserve.Status.COMPLETED);
       reserveRepo.save(r);
@@ -146,14 +141,12 @@ public class LoanService {
     loan.setReturnDate(returnTime);
     loan.setStatus(Loan.Status.RETURNED);
 
-    // Check overdue fines
     if (returnTime.isAfter(loan.getDueDate())) {
       fineService.calculateAndApplyFine(loan, returnTime);
     }
 
     Loan saved = loanRepo.save(loan);
 
-    // Handle book stock: either give to next FIFO reservation or increment available copies
     reserveService.processNextInQueue(loan.getBook());
 
     String message = "Book '" + loan.getBook().getTitle() + "' was successfully returned on " + returnTime.toLocalDate() + ".";
@@ -170,7 +163,6 @@ public class LoanService {
       throw new BadRequest("Only active loans can be renewed.");
     }
 
-    // Students can only renew their own loans
     if (currentUser.getRole() == User.Role.STUDENT && !loan.getUser().getId().equals(currentUser.getId())) {
       throw new BadRequest("You can only renew your own borrowed books.");
     }
@@ -180,13 +172,6 @@ public class LoanService {
       throw new BadRequest("This book has reached the maximum allowed renewals (" + maxRenewals + "). Please return it.");
     }
 
-    // Check if there are other students waiting in reservation queue
-    boolean hasWaitingReservations = reserveRepo.existsByBookIdAndUserIdAndStatusIn(
-        loan.getBook().getId(),
-        null,
-        Arrays.asList(Reserve.Status.PENDING)
-    );
-    // Better check: are any students waiting for this book?
     List<Reserve> waiting = reserveRepo.findByBookIdAndStatusOrderByQueueOrderAsc(loan.getBook().getId(), Reserve.Status.PENDING);
     if (!waiting.isEmpty()) {
       throw new BadRequest("Renewal cannot be approved because another student is currently waiting in the reservation queue for this book.");
